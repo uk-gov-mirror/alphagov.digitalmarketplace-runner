@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+import ast
 from collections import defaultdict
 import colored
+import configparser
 import datetime
 import errno
 import itertools
@@ -28,11 +30,14 @@ TERMINAL_ESCAPE_CLEAR_LINE = '\033[K'
 
 
 class DMRunner:
-    NGINX_CONFIG_FILE = '/usr/local/etc/nginx/nginx.conf'
     INPUT_STRING = 'Enter command (or H for help): '
+
+    NGINX_CONFIG_FILE = '/usr/local/etc/nginx/nginx.conf'
     CURR_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     REPO_DIR = os.path.dirname(CURR_DIR)
+    CONFIG_DIR = os.path.join(os.path.expanduser('~'), '.dmrunner')
     LOGGING_DIR = os.path.join(CURR_DIR, 'logs')
+
     COMPILED_API_REPO_PATTERN = re.compile(r'^digitalmarketplace-(?:.+)?api$')
     COMPILED_FRONTEND_REPO_PATTERN = re.compile(r'^digitalmarketplace-.*-frontend$')
     DM_REPO_PATTERNS = [COMPILED_API_REPO_PATTERN, COMPILED_FRONTEND_REPO_PATTERN]
@@ -51,16 +56,16 @@ class DMRunner:
           * - Specify apps as a space-separator partial match on the name, e.g. 'buyer api' to match the buyer-frontend
               and the api. If no match string is supplied, all apps will match."""
 
-    APP_COLOURS = defaultdict(lambda: '', **{
-        'api': colored.fg('blue') + colored.attr('bold'),
-        'search-api': colored.fg('cyan') + colored.attr('bold'),
-        'admin-frontend': colored.fg('green') + colored.attr('bold'),
-        'brief-responses-frontend': colored.fg('yellow') + colored.attr('bold'),
-        'briefs-frontend': colored.fg('red') + colored.attr('bold'),
-        'buyer-frontend': colored.fg('magenta') + colored.attr('bold'),
-        'supplier-frontend': colored.fg('white') + colored.attr('bold'),
-        'user-frontend': colored.fg('dark_orange_3b') + colored.attr('bold'),
-    })
+    DEFAULT_CONFIG_STYLES = {
+        'api': {'fg': 'blue', 'attr': 'bold'},
+        'search-api': {'fg': 'cyan', 'attr': 'bold'},
+        'admin-frontend': {'fg': 'green', 'attr': 'bold'},
+        'brief-responses-frontend': {'fg': 'yellow', 'attr': 'bold'},
+        'briefs-frontend': {'fg': 'red', 'attr': 'bold'},
+        'buyer-frontend': {'fg': 'magenta', 'attr': 'bold'},
+        'supplier-frontend': {'fg': 'white', 'attr': 'bold'},
+        'user-frontend': {'fg': 'dark_orange_3b', 'attr': 'bold'},
+    }
 
     def __init__(self, download=False, run_all=False, rebuild=False, nix=False):
         self.download = download
@@ -73,6 +78,14 @@ class DMRunner:
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
+
+        try:
+            os.makedirs(DMRunner.CONFIG_DIR)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+        self._load_config()
 
         self.manager = multiprocessing.Manager()
         self.log_queue = self.manager.Queue()
@@ -100,6 +113,16 @@ class DMRunner:
             return 20
 
         return max(len(get_app_name(r)) for r in itertools.chain.from_iterable(self._repositories))
+
+    def _load_config(self):
+        config_file_path = os.path.join(DMRunner.CONFIG_DIR, 'config')
+
+        self.config = configparser.ConfigParser(converters={'dict': lambda x: ast.literal_eval(x)})
+        self.config['styles'] = DMRunner.DEFAULT_CONFIG_STYLES
+        self.config.read(config_file_path)
+
+        with open(config_file_path, 'w') as config_file:
+            self.config.write(config_file)
 
     def _app_name_completer(text, state):
         options = [name for name in self.apps.keys() if text in name]
@@ -317,6 +340,10 @@ class DMRunner:
 
         self.print_out('Done')
 
+    def _stylize(self, text, **styles):
+        style_string = ''.join(getattr(colored, key)(val) for key, val in styles.items())
+        return colored.stylize(text, style_string)
+
     def print_out(self, msg, app_name='manager'):
         if self._awaiting_input:
             # We've printed a prompt - let's overwrite it.
@@ -330,19 +357,20 @@ class DMRunner:
         timestamp = datetime.datetime.now().strftime('%H:%M:%S')
         padded_app_name = r'{{:>{}s}}'.format(self._app_name_width).format(app_name)
         colored_app_name = re.sub(app_name,
-                                  colored.stylize(app_name, DMRunner.APP_COLOURS[app_name]),
+                                  self._stylize(app_name, **self.config['styles'].getdict(app_name, fallback={})),
                                   padded_app_name)
         log_prefix = '{} {}'.format(timestamp, colored_app_name)
 
         terminal_width = shutil.get_terminal_size().columns - (len(timestamp) + self._app_name_width + 4)
         msgs = [msg[x:x + terminal_width] for x in range(0, len(msg), terminal_width)]
 
-        for key, style in DMRunner.APP_COLOURS.items():
-            msgs = [re.sub(r'\s{}\s'.format(key), ' {} '.format(colored.stylize(key, style)), msg) for msg in msgs]
+        for key in self.config['styles'].keys():
+            msgs = [re.sub(r'\s{}\s'.format(key), ' {} '.format(
+                self._stylize(key, **self.config['styles'].getdict(key, fallback={}))), msg) for msg in msgs]
 
         for msg in msgs:
-            msg = re.sub(r'(WARN(?:ING)?)', colored.stylize(r'\1', colored.fg('yellow')), msg)
-            msg = re.sub(r'(ERROR)', colored.stylize(r'\1', colored.fg('red')), msg)
+            msg = re.sub(r'(WARN(?:ING)?)', self._stylize(r'\1', fg='yellow'), msg)
+            msg = re.sub(r'(ERROR)', self._stylize(r'\1', fg='yellow'), msg)
             print('{} | {}'.format(log_prefix, msg), flush=True)
             log_prefix = '{} {}'.format(timestamp, ' ' * len(padded_app_name))
 
@@ -356,7 +384,7 @@ class DMRunner:
         self._processes[app['name']] = DMProcess(app, self.log_queue)
 
         if app['rebuild']:
-            self.print_out('Running {}-build...'.format(colored.stylize(app['name'], colored.attr('bold'))))
+            self.print_out('Running {}-build...'.format(self._stylize(app['name'], attr='bold')))
             # self._processes['{}-build'.format(app['name'])] = DMProcess(app, log_queue)
 
     def run(self):
@@ -404,15 +432,15 @@ class DMRunner:
             padded_app_name = '{{:>{}s}}'.format(self._app_name_width).format(app_name)
             ppid = str(app['process']) if app['process'] > 0 else 'N/A'
             status = status.upper()
-            log_status = (colored.stylize('{:<10}'.format('hidden'), colored.fg('red'))
+            log_status = (self._stylize('{:<10}'.format('hidden'), fg='red')
                           if self._filter_logs and app_name not in self._filter_logs else
-                          colored.stylize('{:<10}'.format('visible'), colored.fg('green')))
+                          self._stylize('{:<10}'.format('visible'), fg='green'))
 
             if status == 'OK':
-                status = colored.stylize('{:<10s}'.format(status  ), colored.fg('green'))
+                status = self._stylize('{:<10s}'.format(status  ), fg='green')
                 self.print_out('| {} | {:>5s} | {} | {:<10s} |'.format(padded_app_name, ppid, status, log_status))
             elif status == 'DOWN':
-                status = colored.stylize('{:<10s}'.format(status), colored.fg('red'))
+                status = self._stylize('{:<10s}'.format(status), fg='red')
                 self.print_out('| {} | {:>5s} | {} | {:<10s} | ({})'.format(padded_app_name, ppid, status,
                                                                             log_status, data.get('message', data)))
             else:
@@ -542,8 +570,8 @@ class DMRunner:
                 app_build = self.apps[app_name].copy()
                 app_build['name'] = app_build_name
 
-                if app_build_name not in DMRunner.APP_COLOURS.keys():
-                    DMRunner.APP_COLOURS[app_build_name] = DMRunner.APP_COLOURS[app_name]
+                if app_build_name not in self.config['styles'].keys():
+                    self.config['styles'][app_build_name] = self.config['styles'].get(app_name)
 
                 # Ephemeral process to run the frontend-build. Not tracked.
                 DMProcess(app_build, self.log_queue)

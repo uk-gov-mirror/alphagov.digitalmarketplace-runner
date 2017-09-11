@@ -1,7 +1,8 @@
 ## Digital Marketplace Runner
 A utility script that will run your API/frontend repositories together and allow you to minimally interact with the
 running processes and their logs. This script is primarily compatible with OSX; running against other OSs may require
-some care and consideration.
+some care and consideration. At its simplest, as an existing developer, you should be able to clone this repo and
+simply type `make` to run all your checked out apps.
 
 ## Prerequisites / Assumptions
 * You have a pre-existing development environment, including eg:
@@ -19,14 +20,14 @@ some care and consideration.
 ## Instructions
 ### Fresh start
 1. Clone this repository into an empty directory (e.g. `~/gds`, `~/dm`, or whatever), so that you have something like 
-`~/gds/digitalmarketplace-runner`.
+`~/gds/dmrunner`.
 2. Run `make download`.
 3. Ensure all required dependencies are in place (including dev data in postgres).
 4. Run `make all`.
 
 ### Existing repos
 1. Clone this repository to the same directory that contains your api/frontend repos.
-2. `cd` into the `digitalmarketplace-runner` repository.
+2. `cd` into the `dmrunner` repository.
 3. `make` to launch all digitalmarketplace apps that you have checked out. If any of your repos are newly checked out,
    or may have missing/out-of-date virtualenvs, use `make all`.
 4. Once the initial boot-up sequence is complete, you'll see a prompt. A number of commands are available to interact
@@ -92,6 +93,7 @@ orphaned processes and then `kill` them before re-launching the runner.
 
 ## Todo
 * Refactoring...
+* Manage config better.
 * Use our standard dockerised backend services for elasticsearch/postgres/nginx so that this can be a quick setup for
   new developers.
 * Look into using dockerised apps with volumes for local code. (i.e. `make docker`, eventually probably just to replace
