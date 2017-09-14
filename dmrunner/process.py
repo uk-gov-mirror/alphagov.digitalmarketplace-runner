@@ -2,6 +2,7 @@
 
 
 import os
+import signal
 import subprocess
 import threading
 
@@ -48,6 +49,7 @@ class DMProcess:
         app_instance = subprocess.Popen(run_cmd, cwd=self.app['repo_path'], env=self._get_clean_env(),
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True,
                                         bufsize=1, start_new_session=True, **popen_args)
+
         self.app['process'] = app_instance.pid
 
         try:
@@ -71,5 +73,12 @@ class DMProcess:
 
     def run(self, init=False, remake=False):
         self.app['process'] = PROCESS_NOEXIST
-        self.thread = threading.Thread(target=self._run_in_thread, args=self._get_command(init, remake))
+
+        curr_signal = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+        self.thread = threading.Thread(target=self._run_in_thread, args=self._get_command(init, remake),
+                                       name='Thread-{}'.format(self.app['name']))
         self.thread.start()
+
+        signal.signal(signal.SIGINT, curr_signal)  # Probably a race condition?

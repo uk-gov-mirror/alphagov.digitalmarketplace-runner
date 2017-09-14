@@ -16,6 +16,7 @@ import readline
 from reconfigure.parsers import NginxParser
 import requests
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -87,21 +88,27 @@ class DMRunner:
 
         self._load_config()
 
+        curr_signal = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
         self.manager = multiprocessing.Manager()
         self.log_queue = self.manager.Queue()
         self.apps = self.manager.dict()
 
-        self.log_processor_shutdown = threading.Event()
-        self.log_thread = threading.Thread(target=self._process_logs, daemon=True)
-        self.log_thread.start()
-
-        self._awaiting_input = False
-        self._suppress_log_printing = False
-        self._filter_logs = []
+        signal.signal(signal.SIGINT, curr_signal)  # Probably a race condition?
 
         self._processes = {}
         self._repositories = self._get_repository_directories()
         self._populate_multiprocessing_components()
+
+        self._shutdown = False
+        self._awaiting_input = False
+        self._suppress_log_printing = False
+        self._filter_logs = []
+
+        self.log_processor_shutdown = threading.Event()
+        self.log_thread = threading.Thread(target=self._process_logs, daemon=True, name='Thread-Logging')
+        self.log_thread.start()
 
         readline.parse_and_bind('tab: complete')
         readline.set_completer(self._app_name_completer)
@@ -374,7 +381,7 @@ class DMRunner:
             print('{} | {}'.format(log_prefix, msg), flush=True)
             log_prefix = '{} {}'.format(timestamp, ' ' * len(padded_app_name))
 
-        if self._awaiting_input:
+        if self._awaiting_input and not self._shutdown:
             # We cleared the prompt before dispalying the log line; we should show the prompt (and any input) again.
             sys.stdout.write('{}{}'.format(DMRunner.INPUT_STRING, readline.get_line_buffer()))
             sys.stdout.flush()
@@ -388,27 +395,32 @@ class DMRunner:
             # self._processes['{}-build'.format(app['name'])] = DMProcess(app, log_queue)
 
     def run(self):
-        if self.download:
-            self._download_repos()
-            return
+        try:
+            if self.download:
+                self._download_repos()
+                return
 
-        down_apps = set()
+            down_apps = set()
 
-        for repos in self._repositories:
-            for repo in repos:
-                app_name = get_app_name(repo)
-                self.run_single_repository(app=self.apps[app_name])
+            for repos in self._repositories:
+                for repo in repos:
+                    app_name = get_app_name(repo)
+                    self.run_single_repository(app=self.apps[app_name])
 
-            down_apps.update(self._ensure_repos_up(repos))
+                down_apps.update(self._ensure_repos_up(repos))
 
-        if not down_apps:
-            self.print_out('All apps up and running: {}  '.format(' '.join(self.apps.keys())))
-        else:
-            self.print_out('There were some problems bringing up the full DM app suite.')
+            if not down_apps:
+                self.print_out('All apps up and running: {}  '.format(' '.join(self.apps.keys())))
+            else:
+                self.print_out('There were some problems bringing up the full DM app suite.')
 
-        self.cmd_apps_status()
+            self.cmd_apps_status()
+
+        except KeyboardInterrupt:
+            self._shutdown = True
 
         self.process_input()
+
 
     def cmd_switch_logs(self, selectors):
         if not selectors:
@@ -582,6 +594,12 @@ class DMRunner:
         """Takes input from user and performs associated actions (e.g. switching log views, restarting apps, shutting
         down)"""
         while True:
+            if self._shutdown:
+                self.print_out('Shutting down...')
+                self.cmd_kill_apps()
+                self.log_processor_shutdown.set()
+                return
+
             try:
                 self._awaiting_input = True
                 command = input(DMRunner.INPUT_STRING).lower().strip()
@@ -610,10 +628,7 @@ class DMRunner:
                     self.cmd_kill_apps(words[1:])
 
                 elif verb == 'q' or verb == 'quit':
-                    self.cmd_kill_apps()
-                    self.log_processor_shutdown.set()
-                    self.print_out('Goodbye.')
-                    return
+                    self._shutdown = True
 
                 elif verb == 'f' or verb == 'filter':
                     self.cmd_switch_logs(words[1:])
@@ -625,8 +640,7 @@ class DMRunner:
                     self.print_out('')
 
             except KeyboardInterrupt:
-                self.print_out('Killing apps...')
-                self.cmd_kill_apps(self.apps)
+                self._shutdown = True
 
             except Exception as e:
                 self.print_out('Exception handling command.')
