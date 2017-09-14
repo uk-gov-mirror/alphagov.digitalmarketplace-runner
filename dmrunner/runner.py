@@ -10,6 +10,7 @@ import itertools
 import json
 import multiprocessing
 import os
+import prettytable
 import psutil
 import re
 import readline
@@ -44,18 +45,18 @@ class DMRunner:
     DM_REPO_PATTERNS = [COMPILED_API_REPO_PATTERN, COMPILED_FRONTEND_REPO_PATTERN]
 
     HELP_SYNTAX = """
-       help - Display this help file.
-     status - Check status for your apps.
-     branch - Check which branch your apps are running against.
-    restart - Restart any apps that have gone down (using `make run-app`).
-     remake - Restart any apps that have gone down (using `make run-all`).
-     filter - Start showing logs only from specified apps*
-   frontend - Run `make frontend-build` against specified apps*
-       kill - Kill specified apps*
-       quit - Terminate all running apps and quit back to your shell.
+ h /     help - Display this help file.
+ s /   status - Check status for your apps.
+ b /   branch - Check which branches your apps are running against.
+ r /  restart - Restart any apps that have gone down (using `make run-app`).
+rm /   remake - Restart any apps that have gone down (using `make run-all`).
+ f /   filter - Start showing logs only from specified apps*
+fe / frontend - Run `make frontend-build` against specified apps*
+ k /     kill - Kill specified apps*
+ q /     quit - Terminate all running apps and quit back to your shell.
 
-          * - Specify apps as a space-separator partial match on the name, e.g. 'buyer api' to match the buyer-frontend
-              and the api. If no match string is supplied, all apps will match."""
+            * - Specify apps as a space-separator partial match on the name, e.g. 'buy search' to match the
+                buyer-frontend and the search-api. If no match string is supplied, all apps will match."""
 
     DEFAULT_CONFIG_STYLES = {
         'api': {'fg': 'blue', 'attr': 'bold'},
@@ -351,35 +352,36 @@ class DMRunner:
         style_string = ''.join(getattr(colored, key)(val) for key, val in styles.items())
         return colored.stylize(text, style_string)
 
-    def print_out(self, msg, app_name='manager'):
+    def print_out(self, msgs, app_name='manager'):
         if self._awaiting_input:
             # We've printed a prompt - let's overwrite it.
             sys.stdout.write('{}{}'.format(TERMINAL_CARRIAGE_RETURN, TERMINAL_ESCAPE_CLEAR_LINE))
 
-        datetime_prefixed_log_pattern = r'^\d{{4}}-\d{{2}}-\d{{2}}T\d{{2}}:\d{{2}}:\d{{2}}\s{}\s'.format(app_name)
+        for msg in msgs.split('\n'):
+            datetime_prefixed_log_pattern = r'^\d{{4}}-\d{{2}}-\d{{2}}T\d{{2}}:\d{{2}}:\d{{2}}\s{}\s'.format(app_name)
 
-        if re.match(datetime_prefixed_log_pattern, msg):
-            msg = re.sub(datetime_prefixed_log_pattern, '', msg)
+            if re.match(datetime_prefixed_log_pattern, msg):
+                msg = re.sub(datetime_prefixed_log_pattern, '', msg)
 
-        timestamp = datetime.datetime.now().strftime('%H:%M:%S')
-        padded_app_name = r'{{:>{}s}}'.format(self._app_name_width).format(app_name)
-        colored_app_name = re.sub(app_name,
-                                  self._stylize(app_name, **self.config['styles'].getdict(app_name, fallback={})),
-                                  padded_app_name)
-        log_prefix = '{} {}'.format(timestamp, colored_app_name)
+            timestamp = datetime.datetime.now().strftime('%H:%M:%S')
+            padded_app_name = r'{{:>{}s}}'.format(self._app_name_width).format(app_name)
+            colored_app_name = re.sub(app_name,
+                                      self._stylize(app_name, **self.config['styles'].getdict(app_name, fallback={})),
+                                      padded_app_name)
+            log_prefix = '{} {}'.format(timestamp, colored_app_name)
 
-        terminal_width = shutil.get_terminal_size().columns - (len(timestamp) + self._app_name_width + 4)
-        msgs = [msg[x:x + terminal_width] for x in range(0, len(msg), terminal_width)]
+            terminal_width = shutil.get_terminal_size().columns - (len(timestamp) + self._app_name_width + 4)
+            msgs = [msg[x:x + terminal_width] for x in range(0, len(msg), terminal_width)]
 
-        for key in self.config['styles'].keys():
-            msgs = [re.sub(r'\s{}\s'.format(key), ' {} '.format(
-                self._stylize(key, **self.config['styles'].getdict(key, fallback={}))), msg) for msg in msgs]
+            for key in self.config['styles'].keys():
+                msgs = [re.sub(r'\s{}\s'.format(key), ' {} '.format(
+                    self._stylize(key, **self.config['styles'].getdict(key, fallback={}))), msg) for msg in msgs]
 
-        for msg in msgs:
-            msg = re.sub(r'(WARN(?:ING)?)', self._stylize(r'\1', fg='yellow'), msg)
-            msg = re.sub(r'(ERROR)', self._stylize(r'\1', fg='yellow'), msg)
-            print('{} | {}'.format(log_prefix, msg), flush=True)
-            log_prefix = '{} {}'.format(timestamp, ' ' * len(padded_app_name))
+            for msg in msgs:
+                msg = re.sub(r'(WARN(?:ING)?)', self._stylize(r'\1', fg='yellow'), msg)
+                msg = re.sub(r'(ERROR)', self._stylize(r'\1', fg='yellow'), msg)
+                print('{} | {}'.format(log_prefix, msg), flush=True)
+                log_prefix = '{} {}'.format(timestamp, ' ' * len(padded_app_name))
 
         if self._awaiting_input and not self._shutdown:
             # We cleared the prompt before dispalying the log line; we should show the prompt (and any input) again.
@@ -432,82 +434,64 @@ class DMRunner:
             self.print_out('Incoming logs will only be shown for these apps: {} '.format(' '.join(self._filter_logs)))
 
     def cmd_apps_status(self):
-        self.print_out('+{}+-------+------------+------------+'.format('-' * (self._app_name_width + 2)))
-        self.print_out('|{}APP |  PPID | STATUS     | LOGGING    |'.format(' ' * (self._app_name_width + 2 - 4)))
-        self.print_out('+{}+-------+------------+------------+'.format('-' * (self._app_name_width + 2)))
+        status_table = prettytable.PrettyTable()
+        status_table.field_names = ['APP', 'PPID', 'STATUS', 'LOGGING', 'DETAILS']
+        status_table.align['APP'] = 'r'
+        status_table.align['PPID'] = 'r'
+        status_table.align['STATUS'] = 'l'
+        status_table.align['LOGGING'] = 'l'
+        status_table.align['DETAILS'] = 'l'
 
         self._suppress_log_printing = True
 
         for app_name, app in self.apps.items():
             status, data = self._check_app_status(app)
 
-            padded_app_name = '{{:>{}s}}'.format(self._app_name_width).format(app_name)
             ppid = str(app['process']) if app['process'] > 0 else 'N/A'
             status = status.upper()
-            log_status = (self._stylize('{:<10}'.format('hidden'), fg='red')
-                          if self._filter_logs and app_name not in self._filter_logs else
-                          self._stylize('{:<10}'.format('visible'), fg='green'))
+            log_status = 'visible' if not self._filter_logs or app_name in self._filter_logs else 'hidden'
+            notes = data.get('message', data) if status != 'OK' else ''
 
-            if status == 'OK':
-                status = self._stylize('{:<10s}'.format(status  ), fg='green')
-                self.print_out('| {} | {:>5s} | {} | {:<10s} |'.format(padded_app_name, ppid, status, log_status))
-            elif status == 'DOWN':
-                status = self._stylize('{:<10s}'.format(status), fg='red')
-                self.print_out('| {} | {:>5s} | {} | {:<10s} | ({})'.format(padded_app_name, ppid, status,
-                                                                            log_status, data.get('message', data)))
-            else:
-                self.print_out('| {} | {:>5s} | {:<10s} | {:<10s} | ({})'.format(padded_app_name, ppid, status,
-                                                                                 log_status,
-                                                                                 data.get('message', data)))
+            status_style = {'fg': 'green'} if status == 'OK' else {'fg': 'red'} if status == 'DOWN' else {}
+            log_status_style = {'fg': 'green'} if log_status == 'visible' else {'fg': 'red'}
+
+            status = self._stylize(status, **status_style)
+            log_status = self._stylize(log_status, **log_status_style)
+
+            status_table.add_row([app_name, ppid, status, log_status, notes])
 
         self._suppress_log_printing = False
 
-        self.print_out('+{}+-------+------------+------------+'.format('-' * (self._app_name_width + 2)))
+        self.print_out(status_table.get_string())
 
     def cmd_apps_branches(self):
-        app_branches = {}
+        branches_table = prettytable.PrettyTable()
+        branches_table.field_names = ['APP', 'BRANCH', 'LAST COMMIT']
+        branches_table.align['APP'] = 'r'
+        branches_table.align['BRANCH'] = 'l'
+        branches_table.align['LAST COMMIT'] = 'r'
 
         for app_name, app in self.apps.items():
-            app_branches[app_name] = {}
             try:
-                app_branches[app_name]["name"] = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
-                                                                         cwd=app['repo_path'],
-                                                                         universal_newlines=True).strip()
+                branch_name = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                                                      cwd=app['repo_path'], universal_newlines=True).strip()
             except:
-                app_branches[app_name]["name"] = "unknown"
+                branch_name = "unknown"
 
             try:
                 last_commit = subprocess.check_output(['git', 'log', '-1', '--format=%cd', '--date=local'],
                                                       cwd=app['repo_path'], universal_newlines=True).strip()
                 last_commit_datetime = datetime.datetime.strptime(last_commit, '%c')
-                last_commit_days_old = (datetime.datetime.utcnow() - last_commit_datetime).days
-                app_branches[app_name]['age'] = ('{} days ago'.format(last_commit_days_old)
-                                                 if last_commit_days_old != 1 else
-                                                 '{}  day ago'.format(last_commit_days_old))
+                last_commit_days_old = max(0, (datetime.datetime.utcnow() - last_commit_datetime).days)
+                age = ('{} days ago'.format(last_commit_days_old)
+                       if last_commit_days_old != 1 else
+                       '{}  day ago'.format(last_commit_days_old))
             except:
-                app_branches[app_name]["age"] = "unknown"
+                age = "unknown"
 
-        branch_width = max(len(branch["name"]) for branch in app_branches.values())
-        age_width = max(len(branch["age"]) for branch in app_branches.values())
+            branches_table.add_row([app_name, branch_name, age])
 
-        self.print_out('+{}+{}+{}+'.format('-' * (self._app_name_width + 2),
-                                           '-' * (branch_width + 2),
-                                           '-' * (age_width + 2)))
-        self.print_out('|{}APP | BRANCH{}|{}LAST COMMIT |'.format(' ' * (self._app_name_width + 2 - 4),
-                                                                  ' ' * (branch_width + 2 - 7),
-                                                                  ' ' * (age_width + 2 - 12)))
-        self.print_out('+{}+{}+{}+'.format('-' * (self._app_name_width + 2),
-                                           '-' * (branch_width + 2),
-                                           '-' * (age_width + 2)))
-
-        for app_name, app in self.apps.items():
-            padded_app_name = '{{:>{}s}}'.format(self._app_name_width).format(app_name)
-            self.print_out('| {{}} | {{:<{}}} | {{:>{}s}} |'.format(branch_width, age_width)\
-                           .format(padded_app_name, app_branches[app_name]['name'], app_branches[app_name]['age']))
-
-        self.print_out('+{}+{}+{}+'.format('-' * (self._app_name_width + 2),
-                                           '-' * (branch_width + 2),
-                                           '-' * (age_width + 2)))
+        self.print_out(branches_table.get_string())
 
     def cmd_restart_down_apps(self, selectors, remake=False):
         matched_apps = self._find_matching_apps(selectors)
@@ -594,13 +578,13 @@ class DMRunner:
         """Takes input from user and performs associated actions (e.g. switching log views, restarting apps, shutting
         down)"""
         while True:
-            if self._shutdown:
-                self.print_out('Shutting down...')
-                self.cmd_kill_apps()
-                self.log_processor_shutdown.set()
-                return
-
             try:
+                if self._shutdown:
+                    self.print_out('Shutting down...')
+                    self.log_processor_shutdown.set()
+                    self.cmd_kill_apps()
+                    return
+
                 self._awaiting_input = True
                 command = input(DMRunner.INPUT_STRING).lower().strip()
                 self._awaiting_input = False
@@ -621,7 +605,7 @@ class DMRunner:
                 elif verb == 'r' or verb == 'restart':
                     self.cmd_restart_down_apps(words[1:])
 
-                elif verb == 'remake':
+                elif verb == 'rm' or verb == 'remake':
                     self.cmd_restart_down_apps(words[1:], remake=True)
 
                 elif verb == 'k' or verb == 'kill':
