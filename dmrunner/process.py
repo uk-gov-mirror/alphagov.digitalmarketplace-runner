@@ -40,6 +40,8 @@ class DMProcess:
         if 'VIRTUAL_ENV' in env:
             del env['VIRTUAL_ENV']
 
+        env['PYTHONUNBUFFERED'] = '1'
+
         return env
 
     def log(self, log_entry):
