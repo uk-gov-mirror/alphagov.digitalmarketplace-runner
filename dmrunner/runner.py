@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import ast
-from collections import defaultdict
+import atexit
 import colored
 import configparser
 import datetime
@@ -397,6 +397,8 @@ fe / frontend - Run `make frontend-build` against specified apps*
             # self._processes['{}-build'.format(app['name'])] = DMProcess(app, log_queue)
 
     def run(self):
+        atexit.register(self.cmd_kill_apps, silent_fail=True)
+
         try:
             if self.download:
                 self._download_repos()
@@ -533,7 +535,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         if not failed_apps and len(recovered_apps) == len(self.apps.keys()):
             self.print_out('All apps up and running: {}  '.format(' '.join(recovered_apps)))
 
-    def cmd_kill_apps(self, selectors=''):
+    def cmd_kill_apps(self, selectors='', silent_fail=False):
         procs = []
 
         for app_name in self._find_matching_apps(selectors):
@@ -554,7 +556,8 @@ fe / frontend - Run `make frontend-build` against specified apps*
                 self.print_out('Taken {} down.'.format(app_name))
 
             except (ProcessLookupError, psutil.NoSuchProcess, KeyError, ValueError):
-                self.print_out('No process found for {} - already down?'.format(app_name))
+                if not silent_fail:
+                    self.print_out('No process found for {} - already down?'.format(app_name))
 
         for proc in procs:
             proc.wait()
