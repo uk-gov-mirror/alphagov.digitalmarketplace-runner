@@ -8,7 +8,7 @@ virtualenv:
 
 .PHONY: install
 install: virtualenv
-	${VIRTUALENV_ROOT}/bin/pip install .
+	${VIRTUALENV_ROOT}/bin/pip install . > /dev/null
 
 .PHONY: uninstall
 uninstall:
@@ -23,7 +23,7 @@ run: install
 	${VIRTUALENV_ROOT}/bin/python main.py ${ARGS}
 
 .PHONY: all
-run-all: install
+all: install
 	${VIRTUALENV_ROOT}/bin/python main.py --all ${ARGS}
 
 .PHONY: nix

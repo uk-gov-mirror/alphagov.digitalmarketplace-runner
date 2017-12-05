@@ -40,6 +40,18 @@ class DMRunner:
     CONFIG_DIR = os.path.join(os.path.expanduser('~'), '.dmrunner')
     LOGGING_DIR = os.path.join(CURR_DIR, 'logs')
 
+    CORE_REPOSITORIES = (
+        'digitalmarketplace-api',
+        'digitalmarketplace-search-api',
+
+        'digitalmarketplace-admin-frontend',
+        'digitalmarketplace-buyer-frontend',
+        'digitalmarketplace-supplier-frontend',
+        'digitalmarketplace-briefs-frontend',
+        'digitalmarketplace-brief-responses-frontend',
+        'digitalmarketplace-user-frontend',
+    )
+
     COMPILED_API_REPO_PATTERN = re.compile(r'^digitalmarketplace-(?:.+)?api$')
     COMPILED_FRONTEND_REPO_PATTERN = re.compile(r'^digitalmarketplace-.*-frontend$')
     DM_REPO_PATTERNS = [COMPILED_API_REPO_PATTERN, COMPILED_FRONTEND_REPO_PATTERN]
@@ -313,40 +325,24 @@ fe / frontend - Run `make frontend-build` against specified apps*
         return tuple(found_apps)
 
     def _download_repos(self):
-        matching_repos = {}
-        res = None
-        page = 1
-
-        retcode = subprocess.call(['ssh', '-T', 'git@github.com'])
+        retcode = subprocess.call(['ssh', '-T', 'git@github.com'],
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if retcode != 1:
             self.print_out('Unable to continue - authentication with Github failed.')
         else:
             self.print_out('Authentication to Github succeeded.')
 
-        self.print_out('Locating Digital Marketplace repositories...')
-        while res is None or res.links.get('next', {}).get('url', None):
-            page += 1
-            res = requests.get('https://api.github.com/orgs/alphagov/repos?per_page=100&page={}'.format(page))
-            if res.status_code != 200:
-                print(res)
-                print(res.text)
-
-            repos = json.loads(res.text)
-            for repo in repos:
-                for pattern in DMRunner.DM_REPO_PATTERNS:
-                    if pattern.match(repo['name']):
-                        app_name = get_app_name(repo['name'])
-                        self.print_out('Found {} '.format(app_name))
-                        matching_repos[app_name] = {'url': repo['html_url']}
-
-        for repo_name, repo_details in matching_repos.items():
-            self.print_out('Cloning {} ...'.format(repo_name))
-            retcode = subprocess.call(['git', 'clone', repo_details['url']], cwd=DMRunner.REPO_DIR)
-            if retcode != 0:
+        self.print_out('Downloading Digital Marketplace core repositories...')
+        for repo_name in self.CORE_REPOSITORIES:
+            retcode = subprocess.call(['git', 'clone', f'git@github.com:alphagov/{repo_name}.git'],
+                                       cwd=DMRunner.REPO_DIR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if retcode == 128:
+                self.print_out(f'Cannot clone {repo_name}: directory already exists.')
+            elif retcode != 0:
                 self.print_out('Problem cloning {} - errcode {}'.format(repo_name, retcode))
 
-        self.print_out('Done')
+        self.print_out('Done.')
 
     def _stylize(self, text, **styles):
         style_string = ''.join(getattr(colored, key)(val) for key, val in styles.items())
