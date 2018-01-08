@@ -129,7 +129,7 @@ repositories:
 
 index:
   repository: digitalmarketplace-scripts
-  command: venv/bin/python scripts/index-to-search-service.py
+  command: python scripts/index-to-search-service.py
   test: http://localhost:9200/{index}
 
   dependencies:

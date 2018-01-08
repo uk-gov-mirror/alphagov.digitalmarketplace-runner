@@ -404,9 +404,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
             sys.stdout.write('{}{}'.format(TERMINAL_CARRIAGE_RETURN, TERMINAL_ESCAPE_CLEAR_LINE))
 
         lines = self._get_cleaned_wrapped_and_styled_text(text, app_name)
-        for line in lines:
+        for i, line in enumerate(lines, start=1):
             # This should be the ONLY direct call to print - everything else should go through this `print_out`.
-            print('{}{}'.format(TERMINAL_CARRIAGE_RETURN, line), flush=True, end=end)
+            print('{}{}'.format(TERMINAL_CARRIAGE_RETURN, line), flush=True, end=os.linesep if i < len(lines) else end)
 
         # We cleared the prompt before displaying the log line; we should show the prompt (and any input) again.
         if not self._shutdown.is_set() and (self._attached_app or self._awaiting_input):

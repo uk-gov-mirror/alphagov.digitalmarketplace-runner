@@ -26,8 +26,7 @@ from dmrunner.utils import (
     EXITCODE_GIT_NOT_AVAILABLE,
     EXITCODE_BOOTSTRAP_FAILED,
     EXITCODE_SETUP_ABORT,
-    EXITCODE_NODE_NOT_IN_PATH,
-    EXITCODE_NODE_VERSION_NOT_SUITABLE,
+    EXITCODE_NIX_NOT_AVAILABLE,
     group_by_key,
     get_app_info,
     nologger,
@@ -41,8 +40,7 @@ from dmrunner.utils import (
 from dmrunner.process import DMServices, DMProcess, background_services, blank_context
 
 MINIMUM_DOCKER_VERSION = '17.09'
-SPECIFIC_NODE_VERSION = 'v6.12.2'  # TODO: This should be pulled from the docker base image really.
-# TODO: Check Yarn version once we've converted to Yarn completely
+MINIMUM_NIX_VERSION = '1.11.16'
 
 
 def _setup_config_modifications(logger, config, config_path):
@@ -121,25 +119,28 @@ def _setup_check_docker_available(logger):
     return 0
 
 
-def _setup_check_node_version(logger):
+def _setup_check_nix_available(logger):
     exitcode = 0
-    logger(bold('Checking Node version ...'))
+    logger(bold('Verifying Nix is available ...'))
 
     try:
-        node_version = subprocess.check_output(['node', '-v'], universal_newlines=True).strip()
+        version = subprocess.check_output(['nix-shell', '--version'], universal_newlines=True).split()[2]
 
-    except Exception:
-        logger(red('* Unable to verify Node version. Please check that you have Node installed and in your path.'))
-        exitcode = EXITCODE_NODE_NOT_IN_PATH
+    except Exception:  # noqa
+        logger(red('* You do not appear to have Nix installed and/or in your path. Please install it.'))
+        exitcode = EXITCODE_NIX_NOT_AVAILABLE
 
     else:
         try:
-            assert LooseVersion(node_version) == LooseVersion(SPECIFIC_NODE_VERSION)
-            logger(green('* You are using a suitable version of Node ({}).'.format(node_version)))
+            assert LooseVersion(version) >= LooseVersion(MINIMUM_NIX_VERSION)
 
         except AssertionError:
-            logger(red('* You have Node {} installed; you should use {}'.format(node_version, SPECIFIC_NODE_VERSION)))
-            exitcode = EXITCODE_NODE_VERSION_NOT_SUITABLE
+            logger(yellow('* WARNING - You are running Nix version {}, but the recommended version is {}. You may not '
+                          'encounter any issues, but you should consider upgrading.'.format(version,
+                                                                                            MINIMUM_NIX_VERSION)))
+
+        else:
+            logger(green('* Nix is available and a suitable version appears to be installed ({}).'.format(version)))
 
     return exitcode
 
@@ -375,7 +376,7 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
             exitcode = exitcode or _setup_logging_directory(config)
             exitcode = exitcode or _setup_check_git_available(logger)
             exitcode = exitcode or _setup_check_docker_available(logger)
-            exitcode = exitcode or _setup_check_node_version(logger)
+            exitcode = exitcode or _setup_check_nix_available(logger)
             exitcode = exitcode or _setup_download_repos(logger, config, settings)
 
             exitcode, use_docker_services = _setup_check_background_services(logger) \

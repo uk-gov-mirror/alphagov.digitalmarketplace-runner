@@ -4,11 +4,11 @@ interact with the running processes and their logs. This script is primarily com
 OSs may require some care and consideration. At its simplest, as an existing developer, you should be able to clone this
 repo, run `make config` and edit the default config provided, then run `make` to bring up all your checked out apps.
 
-## Prereqs
+## Prerequisites
 * You must have the following tools available in order to successfully use the DM Runner:
   * Python 3 (including headers if appropriate) installed globally with `pip` and `virtualenv` packages.
-  * Bower 1.8+; Node 6.10.3 installed; NPM 3+ installed and available in your path.
-  * You have Docker/*Docker for Mac 17.09+* installed (if you want backing services managed for you).
+  * Nix 17.09 installed and in your path - you'll need to close/re-open your shell. (https://nixos.org/nix/download.html)
+  * Docker/*Docker for Mac 17.09+* installed and running (if you want backing services managed for you).
 
 ## Instructions
 1. Ensure your environment meets the requirements.
@@ -52,11 +52,6 @@ logs for the data api and the buyer-frontend to be shown).
 Runs `make frontend-build` against frontend apps. With arguments, the closest-matching app name for each word will be
 rebuilt (eg 'fe buyer supplier' will run a `frontend-build` on the buyer-frontend and the supplier-frontend. With no
 arguments, all frontend apps will be rebuilt. This is a one-off rebuild; for ongoing rebuilds use `FW`.
-
-#### D / Debug
-If you use interactive debuggers, you can attach to a specific application with 'A <app name>' to start using the
-debugger. Once you're finished, Q/Quit/C/Continue will send the same command to PDB and detach you from the process,
-dropping you back to the DMRunner prompt.
 
 #### K / Kill
 Kill apps that are running. With no arguments, all apps will be killed. With arguments, the closest-matching app name

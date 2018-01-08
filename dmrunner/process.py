@@ -155,7 +155,7 @@ class DMServices(DMExecutable):
 
     def blocking_healthcheck(self, shutdown_event):
         self._thread_healthcheck = threading.Thread(target=self.services_healthcheck, args=(shutdown_event, ),
-                                                    name='Thread-Services-HC')
+                                                    daemon=True, name='Thread-Services-HC')
         self._thread_healthcheck.start()
 
         self._log('Running services healthcheck...', log_name=self._log_name)
@@ -192,7 +192,10 @@ class DMServices(DMExecutable):
 @contextmanager
 def background_services(logger, docker_compose_filepath):
     docker_services = DMServices(logger=logger, docker_compose_filepath=docker_compose_filepath)
-    docker_services.blocking_healthcheck(threading.Event())
+    try:
+        docker_services.blocking_healthcheck(threading.Event())
+    except KeyboardInterrupt:
+        raise
     yield
     docker_services.wait(interrupt=True)
 
@@ -215,7 +218,10 @@ class DMProcess(DMExecutable):
         self.run(app_command=self._app_command)
 
     def _get_command(self, app_command):
-        return self._app['commands'][app_command] if app_command in self._app['commands'] else app_command
+        app_command = self._app['commands'][app_command] if app_command in self._app['commands'] else app_command
+        app_command = 'nix-shell --pure --run "{}" .'.format(app_command)
+
+        return app_command
 
     def _run_in_thread(self, app_command):
         self._app_instance = pexpect.spawn(self._get_command(app_command),
