@@ -632,6 +632,21 @@ fe / frontend - Run `make frontend-build` against specified apps*
 
             self.print_out('Starting frontend-build on {} '.format(app_name))
 
+    def cmd_environment(self, command: str, name: str, value: str) -> None:
+        command = command.lower()
+        name = name.upper()
+
+        if command == 'd' or command == 'del' or command == 'delete':
+            del os.environ[name]
+            self.print_out('Deleted variable `{name}`')
+
+        elif command == 'a' or command == 'add' or command == 's' or command == 'set':
+            os.environ[name] = value
+            self.print_out(f'Set value of environment variable `{name}`=`{value}`')
+
+        else:
+            self.print_out('Unknown command `{command}`. Syntax: ENV [SET|DELETE] <key> <value>')
+
     def shutdown(self):
         # Ignore further sigints so that everything wraps up properly.
         # There's a small chance this makes it a real PITA to kill the app though...
@@ -683,6 +698,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
 
             elif verb == 'fe' or verb == 'frontend':
                 self.cmd_frontend_build(words[1:])
+
+            elif verb == 'e' or verb == 'env' or verb == 'environment':
+                self.cmd_environment(words[1], words[2], ' '.join(words[3:]))
 
             else:
                 self.print_out('')
