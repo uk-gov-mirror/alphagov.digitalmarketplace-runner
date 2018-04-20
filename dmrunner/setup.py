@@ -41,7 +41,7 @@ from dmrunner.utils import (
 )
 from dmrunner.process import DMServices, DMProcess, background_services, blank_context
 
-MINIMUM_DOCKER_VERSION = '17.09'
+MINIMUM_DOCKER_VERSION = '18.00'
 SPECIFIC_NODE_VERSION = 'v6.12.2'  # TODO: This should be pulled from the docker base image really.
 # TODO: Check Yarn version once we've converted to Yarn completely
 

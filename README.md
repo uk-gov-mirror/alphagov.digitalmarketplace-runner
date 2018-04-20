@@ -8,7 +8,9 @@ repo, run `make setup` and follow the instructions, then just run `make` to brin
 You must have the following tools available in order to successfully use the DM Runner:
 * Python 3 (including headers if appropriate) installed globally with `pip` and `virtualenv` packages.
 * Bower 1.8+, Node v6.12.2 (consider using Node Version Manager), and NPM 3+ installed and available in your path.
-* You have Docker/**Docker for Mac 17.09+** installed (if you want backing services managed for you).
+* You have Docker/**Docker for Mac 18.03+** installed (if you want backing services managed for you).
+* You have a checkout of `digitalmarketplace-credentials` and export the `DM_CREDENTIALS_REPO` environment variable with
+  the path to your local checkout. `DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow instructions in README).
 
 ## Instructions
 1. Ensure your environment meets the requirements.
