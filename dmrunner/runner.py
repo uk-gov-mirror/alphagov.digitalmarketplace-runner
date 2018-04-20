@@ -60,6 +60,7 @@ rb /  rebuild - Rebuild and restart any failed or down apps using `make run-all`
 fe / frontend - Run `make frontend-build` against specified apps*
  k /     kill - Kill specified apps*
  q /     quit - Terminate all running services and apps and drop back to your shell.
+ e /      env - 'delete', 'set', 'list' environment variables for apps.
 
             * - Specify apps as a space-separator partial match on the name, e.g. 'buy search' to match the
                 buyer-frontend and the search-api. If no match string is supplied, all apps will match."""
@@ -644,8 +645,12 @@ fe / frontend - Run `make frontend-build` against specified apps*
             os.environ[name] = value
             self.print_out(f'Set value of environment variable `{name}`=`{value}`')
 
+        elif command == 'l' or command == 'list':
+            self.print_out('Applications starting up will receive the following environment variables:')
+            self.print_out('\n'.join('{:>20s}: {}'.format(key, value) for key, value in os.environ.items()))
+
         else:
-            self.print_out('Unknown command `{command}`. Syntax: ENV [SET|DELETE] <key> <value>')
+            self.print_out('Unknown command `{command}`. Syntax: ENV [SET|DELETE] <key> <value>, ENV LIST')
 
     def shutdown(self):
         # Ignore further sigints so that everything wraps up properly.
@@ -669,6 +674,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         down)"""
         try:
             words: List[str] = user_input.split(' ')
+            words.extend(['', '', ''])  # The world's nastiest 10-second hack.
             verb: str = words[0]
 
             if verb == 'h' or verb == 'help':
