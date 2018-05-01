@@ -674,7 +674,6 @@ fe / frontend - Run `make frontend-build` against specified apps*
         down)"""
         try:
             words: List[str] = user_input.split(' ')
-            words.extend(['', '', ''])  # The world's nastiest 10-second hack.
             verb: str = words[0]
 
             if verb == 'h' or verb == 'help':
@@ -706,6 +705,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
                 self.cmd_frontend_build(words[1:])
 
             elif verb == 'e' or verb == 'env' or verb == 'environment':
+                words.extend(['', '', ''])  # The world's nastiest 10-second hack.
                 self.cmd_environment(words[1], words[2], ' '.join(words[3:]))
 
             else:
