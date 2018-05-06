@@ -43,7 +43,7 @@ from dmrunner.process import DMServices, DMProcess, background_services, blank_c
 
 MINIMUM_DOCKER_VERSION = '18.00'
 SPECIFIC_NODE_VERSION = 'v6.12.2'  # TODO: This should be pulled from the docker base image really.
-# TODO: Check Yarn version once we've converted to Yarn completely
+SPECIFIC_YARN_VERSION = '1.3.2'  # TODO: This should be pulled from docker base image really.
 
 
 def _setup_config_modifications(logger, config, config_path):
@@ -144,6 +144,29 @@ def _setup_check_node_version(logger):
         except AssertionError:
             logger(red('* You have Node {} installed; you should use {}'.format(node_version, SPECIFIC_NODE_VERSION)))
             exitcode = EXITCODE_NODE_VERSION_NOT_SUITABLE
+
+    return exitcode
+
+
+def _setup_check_yarn_version(logger):
+    exitcode = 0
+    logger(bold('Checking Yarn version ...'))
+
+    try:
+        yarn_version = subprocess.check_output(['yarn', '-v'], universal_newlines=True).strip()
+
+    except Exception:
+        logger(red('* Unable to verify Yarn version. Please check that you have Node installed and in your path.'))
+        exitcode = EXITCODE_YARN_NOT_IN_PATH
+
+    else:
+        try:
+            assert LooseVersion(yarn_version) >= LooseVersion(SPECIFIC_YARN_VERSION)
+            logger(green('* You are using a suitable version of Yarn ({}).'.format(yarn_version)))
+
+        except AssertionError:
+            logger(red('* You have Yarn {} installed; you should use >={}'.format(yarn_version, SPECIFIC_YARN_VERSION)))
+            exitcode = EXITCODE_YARN_VERSION_NOT_SUITABLE
 
     return exitcode
 
@@ -383,6 +406,7 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
             exitcode = exitcode or _setup_check_git_available(logger)
             exitcode = exitcode or _setup_check_docker_available(logger)
             exitcode = exitcode or _setup_check_node_version(logger)
+            exitcode = exitcode or _setup_check_yarn_version(logger)
             exitcode = exitcode or _setup_download_repos(logger, config, settings)
 
             exitcode, use_docker_services = _setup_check_background_services(logger) \
