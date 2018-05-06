@@ -31,38 +31,12 @@ def main():
     parser.add_argument('--config-path', '-c', type=str, default='config/config.yml',
                         help='Path to your configuration file, which will be created from the example config if it does'
                              'not already exist (default: config/config.yml).')
-    parser.add_argument('--no-sops', '-n', action='store_true',
-                        help="Don't decrypt credentials to inject preview backing service API keys into the local "
-                             "environment (eg for Mandrill, Notify, etc). Some things may not work correctly if you "
-                             "use this option.")
     parser.add_argument('command', type=str, default='run', choices=RUNNER_COMMANDS,
                         help="'config': Creates a local copy of configuration for you to edit.\n"
                              " 'setup': Performs setup and checks that your environment meets DM requirements.\n"
                              "   'run': Run the Digital Marketplace (default)")
 
     args = parser.parse_args()
-
-    if not args.no_sops:
-        path_to_credentials = os.getenv('DM_CREDENTIALS_REPO')
-        if not path_to_credentials:
-            print('You must define the environment variable DM_CREDENTIALS_REPO.')
-            sys.exit(1)
-
-        aws_access_key_id = subprocess.check_output('aws configure get aws_access_key_id'.split(), universal_newlines=True)
-        aws_secret_access_key = subprocess.check_output('aws configure get aws_secret_access_key'.split(),
-                                                        universal_newlines=True)
-
-        all_creds = yaml.safe_load(subprocess.check_output(f'{path_to_credentials}/sops-wrapper '
-                                                           f'-d {path_to_credentials}/vars/preview.yaml'.split(),
-                                                           universal_newlines=True))
-
-        mandrill_key = all_creds['shared_tokens']['mandrill_key']
-        notify_key = all_creds['notify_api_key']
-
-        os.environ['AWS_ACCESS_KEY_ID'] = aws_access_key_id.strip()
-        os.environ['AWS_SECRET_ACCESS_KEY'] = aws_secret_access_key.strip()
-        os.environ['DM_MANDRILL_API_KEY'] = mandrill_key.strip()
-        os.environ['DM_NOTIFY_API_KEY'] = notify_key.strip()
 
     runner = DMRunner(command=args.command.lower(), rebuild=args.rebuild, config_path=args.config_path)
     runner.run()

@@ -16,7 +16,7 @@ config: install
 
 .PHOHY: setup
 setup: install
-	${VIRTUALENV_ROOT}/bin/python main.py setup
+	${VIRTUALENV_ROOT}/bin/python main.py ${ARGS} setup
 
 .PHONY: run
 run: virtualenv
