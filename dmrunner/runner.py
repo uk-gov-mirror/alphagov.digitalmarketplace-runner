@@ -112,6 +112,8 @@ fe / frontend - Run `make frontend-build` against specified apps*
             self.shutdown()
             sys.exit(exitcode)
 
+        self._inject_credentials()
+
         self._main_log_name = 'manager'
 
         self._populate_multiprocessing_components()
@@ -164,6 +166,33 @@ fe / frontend - Run `make frontend-build` against specified apps*
                 return app
 
         return None
+
+    def _inject_credentials(self) -> None:
+        if self.config.get('credentials', {}).get('sops', False) :
+            path_to_credentials = os.getenv('DM_CREDENTIALS_REPO')
+            if not path_to_credentials:
+                print('You must define the environment variable DM_CREDENTIALS_REPO to use automatic credential '
+                      'injection.')
+                self.shutdown()
+                sys.exit(1)
+
+            aws_access_key_id = subprocess.check_output('aws configure get aws_access_key_id'.split(),
+                                                        universal_newlines=True)
+            aws_secret_access_key = subprocess.check_output('aws configure get aws_secret_access_key'.split(),
+                                                            universal_newlines=True)
+
+            self.print_out('Decrypting credentials for injection into app processes ...')
+            all_creds = yaml.safe_load(subprocess.check_output(f'{path_to_credentials}/sops-wrapper '
+                                                               f'-d {path_to_credentials}/vars/preview.yaml'.split(),
+                                                               universal_newlines=True))
+
+            mandrill_key = all_creds['shared_tokens']['mandrill_key']
+            notify_key = all_creds['notify_api_key']
+
+            os.environ['AWS_ACCESS_KEY_ID'] = aws_access_key_id.strip()
+            os.environ['AWS_SECRET_ACCESS_KEY'] = aws_secret_access_key.strip()
+            os.environ['DM_MANDRILL_API_KEY'] = mandrill_key.strip()
+            os.environ['DM_NOTIFY_API_KEY'] = notify_key.strip()
 
     def _get_input_and_pipe_to_target(self) -> None:
         """Receives input from the user. Directs it to the appropriate channel, whether that be the DMRunner command

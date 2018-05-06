@@ -7,10 +7,12 @@ repo, run `make setup` and follow the instructions, then just run `make` to brin
 ## Requirements
 You must have the following tools available in order to successfully use the DM Runner:
 * Python 3 (including headers if appropriate) installed globally with `pip` and `virtualenv` packages.
-* Bower 1.8+, Node v6.12.2 (consider using Node Version Manager), and NPM 3+ installed and available in your path.
+* Bower 1.8+, Node v6.12.2 (consider using Node Version Manager), NPM 3+, and Yarn 1.3.2+ installed and available in your path.
 * You have Docker/**Docker for Mac 18.03+** installed (if you want backing services managed for you).
-* You have a checkout of `digitalmarketplace-credentials` and export the `DM_CREDENTIALS_REPO` environment variable with
-  the path to your local checkout. `DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow instructions in README).
+* If you want to automatically decrypt and inject credentials (requires SC clearance and AWS access):
+  * You have a checkout of `digitalmarketplace-credentials` and export the `DM_CREDENTIALS_REPO` environment variable with
+    the path to your local checkout. `DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow instructions in README).
+  * After running setup, edit the `config.yml` file and change the value of `credentials->sops` to `on`.
 
 ## Instructions
 1. Ensure your environment meets the requirements.
@@ -64,11 +66,12 @@ Kill all running apps and quit back to your shell.
 
 ## Configuration
 You can configure certain aspects of the runner by editing config/config.yml (after initial setup). Configurable options
-includeS:
+includes:
 * The parent directory to scan for Digital Marketplace repositories
 * Whether, and where, to persistently store application logs to disk
 * Highlighting in logs displayed to the terminal
 * Indentation on wrapped log lines in the display
+* Whether or not the runner should automatically inject required credentials/tokens for supporting services (e.g. Notify).
 
 ## Troubleshooting
 * Troubleshooting tips to go here...
@@ -77,3 +80,4 @@ includeS:
 * Refactoring...
 * Add Nix detection to setup and, by default, run apps using Nix to avoid local requirements on node/npm/bower/etc.
 * Allow use of frontend-build:watch to continually rebuild assets
+* Need to install postgresql locally (api requires pg_config) even if using docker.
