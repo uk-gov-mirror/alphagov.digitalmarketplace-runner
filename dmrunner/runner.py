@@ -104,8 +104,8 @@ fe / frontend - Run `make frontend-build` against specified apps*
         self._main_log_name = 'setup'
         # Handles initialization of external state required to run this correctly (repos, docker images, config, etc).
         exitcode, self._use_docker_services, self.config = setup_and_check_requirements(
-                logger=self.logger, config=self.config, config_path=self._config_path, settings=self.settings,
-                only_check_services=self._command == RUNNER_COMMAND_RUN
+            logger=self.logger, config=self.config, config_path=self._config_path, settings=self.settings,
+            only_check_services=self._command == RUNNER_COMMAND_RUN
         )
 
         if exitcode or self._command != RUNNER_COMMAND_RUN:
@@ -127,7 +127,6 @@ fe / frontend - Run `make frontend-build` against specified apps*
     def _app_repositories(self) -> List[List[str]]:
         """Returns a nested list of repository names grouped by the order they should be started."""
         return group_by_key(self.settings['repositories'], 'run-order')
-
 
     @property
     def _app_name_width(self) -> int:
@@ -168,7 +167,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         return None
 
     def _inject_credentials(self) -> None:
-        if self.config.get('credentials', {}).get('sops', False) :
+        if self.config.get('credentials', {}).get('sops', False):
             path_to_credentials = os.getenv('DM_CREDENTIALS_REPO')
             if not path_to_credentials:
                 print('You must define the environment variable DM_CREDENTIALS_REPO to use automatic credential '
@@ -262,9 +261,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
             else:
                 try:
                     status_endpoint = 'http://{server}:{port}{endpoint}'.format(
-                            server=self.settings['server'],
-                            port=self.settings['repositories'][app['repo_name']]['healthcheck']['port'],
-                            endpoint=self.settings['repositories'][app['repo_name']]['healthcheck']['endpoint'],
+                        server=self.settings['server'],
+                        port=self.settings['repositories'][app['repo_name']]['healthcheck']['port'],
+                        endpoint=self.settings['repositories'][app['repo_name']]['healthcheck']['endpoint'],
                     )
 
                     # self.print_out('Checking status for {} at {}'.format(app['name'], status_endpoint))
@@ -351,7 +350,6 @@ fe / frontend - Run `make frontend-build` against specified apps*
         self._dmservices = DMServices(logger=self.logger, docker_compose_filepath=docker_compose_filepath)
         self._dmservices.blocking_healthcheck(self._shutdown)
 
-
     def _stylize(self, text, **styles):
         style_string = ''.join(getattr(colored, key)(val) for key, val in styles.items())
         return colored.stylize(text, style_string)
@@ -394,8 +392,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
             # We sort colorize keys by length to ensure partial matches do not override longer matches (eg 'api'
             # being highlighted rather than 'search-api').
             for key in sorted(log_styling.keys(), key=lambda x: len(x), reverse=True):
-                line = re.sub(r'([\s-]){}\s'.format(key), '\\1{} '.format(
-                        self._stylize(key, **log_styling.get(key, {}))), line)
+                line = re.sub(
+                    r'([\s-]){}\s'.format(key), '\\1{} '.format(self._stylize(key, **log_styling.get(key, {}))), line
+                )
 
             line = re.sub(r'(WARN(?:ING)?|ERROR)', self._stylize(r'\1', fg='yellow'), line)
             line = re.sub(r' "((?:API (?:request )?)?GET|PUT|POST|DELETE)',
@@ -408,10 +407,12 @@ fe / frontend - Run `make frontend-build` against specified apps*
 
             try:
                 lines = ansiwrap.ansi_terminate_lines(
-                        ansiwrap.wrap(line,
-                                      width=terminal_width,
-                                      subsequent_indent=' ' * self.config.get('logging', {}).get('wrap-line-indent', 0),
-                                      drop_whitespace=False)
+                    ansiwrap.wrap(
+                        line,
+                        width=terminal_width,
+                        subsequent_indent=' ' * self.config.get('logging', {}).get('wrap-line-indent', 0),
+                        drop_whitespace=False
+                    )
                 )
 
             except ValueError:  # HACK: Problem decoding some ansi codes from Docker, so just wrap them ignorantly.
@@ -481,7 +482,6 @@ fe / frontend - Run `make frontend-build` against specified apps*
             self._get_input_and_pipe_to_target()
             self.shutdown()
 
-
     def cmd_switch_logs(self, selectors: list):
         if not selectors:
             self._filter_logs = []
@@ -537,7 +537,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
             try:
                 branch_name = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
                                                       cwd=app['repo_path'], universal_newlines=True).strip()
-            except:
+            except Exception:  # noqa
                 branch_name = "unknown"
 
             try:
@@ -548,7 +548,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
                 age = ('{} days ago'.format(last_commit_days_old)
                        if last_commit_days_old != 1 else
                        '{}  day ago'.format(last_commit_days_old))
-            except:
+            except Exception:  # noqa
                 age = "unknown"
 
             branches_table.add_row([app_name, branch_name, age])

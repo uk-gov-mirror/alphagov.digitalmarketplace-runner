@@ -29,6 +29,8 @@ from dmrunner.utils import (
     EXITCODE_NODE_NOT_IN_PATH,
     EXITCODE_NODE_VERSION_NOT_SUITABLE,
     EXITCODE_CONFIG_NO_EXIST,
+    EXITCODE_YARN_NOT_IN_PATH,
+    EXITCODE_YARN_VERSION_NOT_SUITABLE,
     group_by_key,
     get_app_info,
     nologger,
@@ -80,6 +82,7 @@ def _setup_logging_directory(config):
             return e.errno
 
     return 0
+
 
 def _setup_check_git_available(logger):
     logger(bold('Verifying Git is available ...'))
@@ -155,7 +158,7 @@ def _setup_check_yarn_version(logger):
     try:
         yarn_version = subprocess.check_output(['yarn', '-v'], universal_newlines=True).strip()
 
-    except Exception:
+    except Exception:  # noqa
         logger(red('* Unable to verify Yarn version. Please check that you have Node installed and in your path.'))
         exitcode = EXITCODE_YARN_NOT_IN_PATH
 
@@ -256,8 +259,8 @@ def _setup_check_postgres_data_if_required(logger, settings, use_docker_services
 
         while not data_available():
             logger(red('* No data is available.') + ' When you press ENTER, a link will be opened for you. Please '
-                                                  'download the file to `{data_path}` then press ENTER '
-                                                  'again.'.format(data_path=data_path), end='')
+                                                    'download the file to `{data_path}` then press ENTER '
+                                                    'again.'.format(data_path=data_path), end='')
             input(' ')
             webbrowser.open(settings['data-dump-url'])
             logger('* ')
@@ -309,7 +312,9 @@ def _setup_bootstrap_repositories(logger: Callable, config: dict, settings: dict
                 exitcode = DMProcess(app=app_info, logger=logger, app_command=bootstrap_command).wait()
 
                 if exitcode:
-                    logger(red('* Bootstrap failed for ') + app_info['name'] + red(' with exit code {}').format(exitcode))
+                    logger(red('* Bootstrap failed for ')
+                           + app_info['name']
+                           + red(' with exit code {}').format(exitcode))
                     exitcode = EXITCODE_BOOTSTRAP_FAILED
                     break
 

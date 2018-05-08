@@ -36,7 +36,6 @@ class DMExecutable:
         self._logger(log_entry.strip('\r\n').strip('\n'), log_name, attach)
 
 
-
 class DMServices(DMExecutable):
     def __init__(self, logger, docker_compose_filepath, docker_arg='up', log_name='services'):
         self._logger = logger
@@ -113,7 +112,6 @@ class DMServices(DMExecutable):
             sys.exit(EXITCODE_NOT_ANTICIPATED_EXECUTION)
 
         return all(healthcheck_result.values()), healthcheck_result
-
 
     def _run_in_thread(self):
         self._service_process = subprocess.Popen(self._get_docker_compose_command(self._docker_compose_filepath,
@@ -246,7 +244,7 @@ class DMProcess(DMExecutable):
 
                                 self._app['attached'] = True
                                 self._log('Attaching to {} ...'.format(self._app['name']),
-                                          log_name = self._app['name'], attach=True)
+                                          log_name=self._app['name'], attach=True)
 
                         except pexpect.exceptions.TIMEOUT:
                             continue
