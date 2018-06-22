@@ -218,12 +218,16 @@ class DMProcess(DMExecutable):
         self.run(app_command=self._app_command)
 
     def _get_clean_env(self):
-        return {
+        clean_env = {
             'PYTHONUNBUFFERED': '1',
             'DMRUNNER_USER': getpass.getuser(),
             'PATH': os.environ['PATH'],
             'LANG': os.environ['LANG'],
         }
+
+        dm_env = {key: value for key, value in os.environ.items() if key.startswith('DM_')}
+
+        return {**clean_env, **dm_env}
 
     def _get_command(self, app_command):
         return self._app['commands'][app_command] if app_command in self._app['commands'] else app_command

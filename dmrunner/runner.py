@@ -481,7 +481,6 @@ fe / frontend - Run `make frontend-build` against specified apps*
             self._get_input_and_pipe_to_target()
             self.shutdown()
 
-
     def cmd_switch_logs(self, selectors: list):
         if not selectors:
             self._filter_logs = []
