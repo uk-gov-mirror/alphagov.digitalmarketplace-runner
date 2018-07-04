@@ -36,7 +36,6 @@ class DMExecutable:
         self._logger(log_entry.strip('\r\n').strip('\n'), log_name, attach)
 
 
-
 class DMServices(DMExecutable):
     def __init__(self, logger, docker_compose_filepath, docker_arg='up', log_name='services'):
         self._logger = logger
