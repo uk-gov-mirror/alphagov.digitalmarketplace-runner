@@ -194,9 +194,18 @@ class DMServices(DMExecutable):
 
 @contextmanager
 def background_services(logger, docker_compose_filepath):
+    shutdown_event = threading.Event()
     docker_services = DMServices(logger=logger, docker_compose_filepath=docker_compose_filepath)
-    docker_services.blocking_healthcheck(threading.Event())
+
+    try:
+        docker_services.blocking_healthcheck(shutdown_event)
+
+    except KeyboardInterrupt as e:
+        shutdown_event.set()
+        raise e
+
     yield
+
     docker_services.wait(interrupt=True)
 
 

@@ -12,7 +12,7 @@ services:
     container_name: dm-postgres
     networks:
       - dmrunner
-    image: "postgres:9.5"
+    image: "postgres@sha256:888b62ebb1265a7df59258fa22227e707faa2b39d9abfe2a1d6f9e3cd5936468"
     ports:
       - "5432:5432"
     volumes:
