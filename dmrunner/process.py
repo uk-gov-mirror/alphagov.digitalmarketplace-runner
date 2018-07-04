@@ -231,7 +231,7 @@ class DMProcess(DMExecutable):
             'PYTHONUNBUFFERED': '1',
             'DMRUNNER_USER': getpass.getuser(),
             'PATH': os.environ['PATH'],
-            'LANG': os.environ['LANG'],
+            'LANG': os.environ.get('LANG', 'en_GB.UTF-8'),
         }
 
         dm_env = {key: value for key, value in os.environ.items() if key.startswith('DM_')}
