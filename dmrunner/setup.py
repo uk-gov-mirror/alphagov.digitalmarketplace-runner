@@ -55,12 +55,23 @@ def _setup_config_modifications(logger, config, config_path):
                'checked out.')
         logger('If you do not have code currently checked out, enter the directory you would like '
                'code to be downloaded to.')
-        logger('[default: {}]:'.format(yellow(default_code_directory)), end='')
+        logger('[current value: {}]:'.format(yellow(default_code_directory)), end='')
         requested_code_directory = os.path.realpath(input(' ').strip() or default_code_directory)
         os.makedirs(requested_code_directory, exist_ok=True)
 
         logger('Code directory set to ' + yellow(requested_code_directory))
         interim_config['code']['directory'] = requested_code_directory
+
+        current_decryption = interim_config['credentials']['sops']
+        logger('')
+        logger('Do you want to decrypt credentials automatically (requires security clearance)?')
+        logger('Y/N [current value: {}]:'.format(yellow('Y' if current_decryption is True else 'N')), end='')
+        decrypt_credentials = (True if input(' ').strip().lower() == 'y' else False)
+
+        logger('Credentials ' +
+               (yellow('will') if decrypt_credentials else red('will not')) +
+               ' be decrypted automatically.')
+        interim_config['credentials']['sops'] = decrypt_credentials
 
         save_config(interim_config, config_path)
 
