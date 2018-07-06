@@ -702,7 +702,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         down)"""
         try:
             words: List[str] = user_input.split(' ')
-            verb: str = words[0]
+            verb: str = words[0].lower()
 
             if verb == 'h' or verb == 'help':
                 print(DMRunner.HELP_SYNTAX, flush=True)
