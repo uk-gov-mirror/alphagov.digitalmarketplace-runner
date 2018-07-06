@@ -18,6 +18,10 @@ config: install
 setup: install
 	${VIRTUALENV_ROOT}/bin/python main.py ${ARGS} setup
 
+.PHOHY: data
+data: install
+	${VIRTUALENV_ROOT}/bin/python main.py ${ARGS} data
+
 .PHONY: run
 run: virtualenv
 	${VIRTUALENV_ROOT}/bin/python main.py ${ARGS} run

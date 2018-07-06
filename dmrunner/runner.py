@@ -105,7 +105,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         # Handles initialization of external state required to run this correctly (repos, docker images, config, etc).
         exitcode, self._use_docker_services, self.config = setup_and_check_requirements(
                 logger=self.logger, config=self.config, config_path=self._config_path, settings=self.settings,
-                only_check_services=self._command == RUNNER_COMMAND_RUN
+                command=self._command
         )
 
         if exitcode or self._command != RUNNER_COMMAND_RUN:

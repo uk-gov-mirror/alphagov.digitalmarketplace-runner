@@ -27,8 +27,9 @@ PROCESS_NOEXIST = -1
 PROCESS_TERMINATED = -2
 
 RUNNER_COMMAND_SETUP = 'setup'
+RUNNER_COMMAND_DATA = 'data'
 RUNNER_COMMAND_RUN = 'run'
-RUNNER_COMMANDS = [RUNNER_COMMAND_SETUP, RUNNER_COMMAND_RUN]
+RUNNER_COMMANDS = [RUNNER_COMMAND_SETUP, RUNNER_COMMAND_DATA, RUNNER_COMMAND_RUN]
 
 EXAMPLE_CONFIG_PATH = os.path.join(os.path.realpath('.'), 'config', 'example-config.yml')
 
@@ -47,6 +48,16 @@ def yellow(text):
 
 def green(text):
     return colored.stylize(text, colored.fg('green'))
+
+
+def get_yes_no_input(logger, text):
+    user_input = ''
+
+    while not user_input:
+        logger(text + ' [' + yellow('Y') + '/' + yellow('N') + ']', end='')
+        user_input = input(' ').strip().lower()
+
+    return user_input
 
 
 def group_by_key(dictionary, key, include_missing=False):

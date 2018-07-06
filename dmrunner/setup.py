@@ -31,8 +31,11 @@ from dmrunner.utils import (
     EXITCODE_SETUP_ABORT,
     EXITCODE_YARN_NOT_IN_PATH,
     EXITCODE_YARN_VERSION_NOT_SUITABLE,
+    RUNNER_COMMAND_DATA,
+    RUNNER_COMMAND_RUN,
     group_by_key,
     get_app_info,
+    get_yes_no_input,
     nologger,
     red,
     yellow,
@@ -72,7 +75,7 @@ def _setup_config_modifications(logger, config, config_path):
         decrypt_credentials = current_decryption if not cleaned_input else True if cleaned_input == 'y' else False
 
         logger('Credentials ' +
-               (yellow('will') if decrypt_credentials else red('will not')) +
+               (green('will') if decrypt_credentials else red('will not')) +
                ' be decrypted automatically.')
         interim_config['credentials']['sops'] = decrypt_credentials
 
@@ -257,13 +260,21 @@ def _setup_check_background_services(logger):
     return 0, use_docker_services
 
 
-def _setup_check_postgres_data_if_required(logger, settings, use_docker_services):
+def _setup_check_postgres_data_if_required(logger, settings, use_docker_services, prompt_delete_existing=False):
     exitcode = 0
     logger(bold('Checking that you have data available to populate your Postgres database.'))
 
     if use_docker_services:
         data_path = os.path.join(os.path.realpath('.'), settings['sql-data-path'])
         os.makedirs(data_path, exist_ok=True)
+
+        if prompt_delete_existing:
+            prompt = 'Do you need want to delete any existing Postgres data dumps in order to download a newer one?'
+            if get_yes_no_input(logger, prompt) == 'y':
+                sql_files = glob.glob(os.path.join(data_path, '*.sql')) + glob.glob(os.path.join(data_path, '*.sql.gz'))
+                for sql_file in sql_files:
+                    logger(f'Removing file `{sql_file}` ...')
+                    os.remove(sql_file)
 
         def data_available():
             return glob.glob(os.path.join(data_path, '*.sql')) or glob.glob(os.path.join(data_path, '*.sql.gz'))
@@ -403,19 +414,52 @@ def _setup_indices(logger: Callable, config: dict, settings: dict):
     return exitcode
 
 
-def setup_and_check_requirements(logger: Callable, config: dict, config_path: str, settings: Dict,
-                                 only_check_services: bool = False):
+def setup_and_check_requirements(logger: Callable, config: dict, config_path: str, settings: Dict, command: str):
     """This runs some basic checks to ensure that the User has everything required for DMRunner to function
     correctly, eg their own config file, Docker (and possibly Nix in the future), docker images, checked-out code.
     """
     exitcode = 0
     use_docker_services = False
+    only_check_services = True if command == RUNNER_COMMAND_RUN else False
+    only_setup_data = True if command == RUNNER_COMMAND_DATA else False
 
     if only_check_services:
         exitcode, interim_config = load_config(config_path, must_exist=True)
         config.update(interim_config)
+
+        logger(bold('Starting service check ...'))
         if not exitcode:
             exitcode, use_docker_services = _setup_check_background_services(logger)
+
+    elif only_setup_data:
+        exitcode, interim_config = load_config(config_path, must_exist=True)
+        config.update(interim_config)
+
+        if only_setup_data:
+            logger(bold('Starting data setup ...'))
+            logger(red('WARNING: ') + 'This will delete ' + bold('ALL') + ' of your existing database and elasticsearch'
+                                                                          ' data, then re-populate it.')
+
+            if get_yes_no_input(logger, 'Are you sure you want to proceed?') != 'y':
+                exitcode = EXITCODE_SETUP_ABORT
+
+            else:
+                exitcode, use_docker_services = _setup_check_background_services(logger) \
+                    if not exitcode else \
+                    (exitcode, False)
+
+                if not use_docker_services:
+                    logger(bold('Cannot run a data setup if you are managing your own backing services. Sorry!'))
+                    exitcode = EXITCODE_SETUP_ABORT
+
+                exitcode = exitcode or _setup_check_postgres_data_if_required(logger, settings,
+                                                                              use_docker_services,
+                                                                              prompt_delete_existing=True)
+
+                with (background_services(logger, docker_compose_filepath=settings['docker-compose-filepath'],
+                                          clean=True)
+                        if use_docker_services and not exitcode else blank_context()):
+                    exitcode = exitcode or _setup_indices(logger, config, settings)
 
     else:
         logger(bold('Starting setup ...'))

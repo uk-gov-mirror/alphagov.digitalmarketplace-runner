@@ -17,7 +17,7 @@ import threading
 import time
 from typing import Optional
 
-from .utils import PROCESS_TERMINATED, PROCESS_NOEXIST, EXITCODE_NOT_ANTICIPATED_EXECUTION
+from .utils import PROCESS_TERMINATED, PROCESS_NOEXIST, EXITCODE_NOT_ANTICIPATED_EXECUTION, bold
 
 
 class DMExecutable:
@@ -160,7 +160,7 @@ class DMServices(DMExecutable):
                                                     name='Thread-Services-HC')
         self._thread_healthcheck.start()
 
-        self._log('Running services healthcheck...', log_name=self._log_name)
+        self._log('Running services healthcheck ...', log_name=self._log_name)
 
         try:
             self._thread_healthcheck.join()
@@ -192,7 +192,12 @@ class DMServices(DMExecutable):
 
 
 @contextmanager
-def background_services(logger, docker_compose_filepath):
+def background_services(logger, docker_compose_filepath, clean=False):
+    if clean is True:
+        logger(bold('Destroying existing containers ...'))
+        services = DMServices(logger=logger, docker_compose_filepath=docker_compose_filepath, docker_arg='down')
+        services.wait()
+
     shutdown_event = threading.Event()
     docker_services = DMServices(logger=logger, docker_compose_filepath=docker_compose_filepath)
 
