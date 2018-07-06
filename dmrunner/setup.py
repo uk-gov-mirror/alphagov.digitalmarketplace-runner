@@ -68,7 +68,8 @@ def _setup_config_modifications(logger, config, config_path):
         logger('')
         logger('Do you want to decrypt credentials automatically (requires security clearance)?')
         logger('Y/N [current value: {}]:'.format(yellow('Y' if current_decryption is True else 'N')), end='')
-        decrypt_credentials = (True if input(' ').strip().lower() == 'y' else False)
+        cleaned_input = input(' ').strip().lower()
+        decrypt_credentials = current_decryption if not cleaned_input else True if cleaned_input == 'y' else False
 
         logger('Credentials ' +
                (yellow('will') if decrypt_credentials else red('will not')) +
