@@ -21,14 +21,16 @@ import webbrowser
 from dmrunner.utils import (
     APP_COMMAND_RESTART,
     EXITCODE_BAD_SERVICES,
+    EXITCODE_BOOTSTRAP_FAILED,
+    EXITCODE_CONFIG_NO_EXIST,
     EXITCODE_DOCKER_NOT_AVAILABLE,
     EXITCODE_GIT_AUTH_FAILED,
     EXITCODE_GIT_NOT_AVAILABLE,
-    EXITCODE_BOOTSTRAP_FAILED,
-    EXITCODE_SETUP_ABORT,
     EXITCODE_NODE_NOT_IN_PATH,
     EXITCODE_NODE_VERSION_NOT_SUITABLE,
-    EXITCODE_CONFIG_NO_EXIST,
+    EXITCODE_SETUP_ABORT,
+    EXITCODE_YARN_NOT_IN_PATH,
+    EXITCODE_YARN_VERSION_NOT_SUITABLE,
     group_by_key,
     get_app_info,
     nologger,
@@ -91,6 +93,7 @@ def _setup_logging_directory(config):
             return e.errno
 
     return 0
+
 
 def _setup_check_git_available(logger):
     logger(bold('Verifying Git is available ...'))
@@ -187,7 +190,6 @@ def _setup_download_repos(logger, config, settings):
     logger(bold('Checking authentication with GitHub ...'))
 
     try:
-
         retcode = subprocess.call(['ssh', '-T', 'git@github.com'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if retcode != 1:
