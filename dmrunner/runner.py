@@ -351,12 +351,12 @@ fe / frontend - Run `make frontend-build` against specified apps*
         self._dmservices = DMServices(logger=self.logger, docker_compose_filepath=docker_compose_filepath)
         self._dmservices.blocking_healthcheck(self._shutdown)
 
-
     def _stylize(self, text, **styles):
         style_string = ''.join(getattr(colored, key)(val) for key, val in styles.items())
         return colored.stylize(text, style_string)
 
     def _get_cleaned_wrapped_and_styled_text(self, text, app_name):
+        """This beast is a definite candidate for refactoring and is a pretty slow text processor at the moment."""
         def pad_name(name):
             return r'{{:>{}s}}'.format(self._app_name_width).format(name)
 
@@ -702,7 +702,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         down)"""
         try:
             words: List[str] = user_input.split(' ')
-            verb: str = words[0]
+            verb: str = words[0].lower()
 
             if verb == 'h' or verb == 'help':
                 print(DMRunner.HELP_SYNTAX, flush=True)

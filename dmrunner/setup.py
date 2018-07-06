@@ -21,14 +21,16 @@ import webbrowser
 from dmrunner.utils import (
     APP_COMMAND_RESTART,
     EXITCODE_BAD_SERVICES,
+    EXITCODE_BOOTSTRAP_FAILED,
+    EXITCODE_CONFIG_NO_EXIST,
     EXITCODE_DOCKER_NOT_AVAILABLE,
     EXITCODE_GIT_AUTH_FAILED,
     EXITCODE_GIT_NOT_AVAILABLE,
-    EXITCODE_BOOTSTRAP_FAILED,
-    EXITCODE_SETUP_ABORT,
     EXITCODE_NODE_NOT_IN_PATH,
     EXITCODE_NODE_VERSION_NOT_SUITABLE,
-    EXITCODE_CONFIG_NO_EXIST,
+    EXITCODE_SETUP_ABORT,
+    EXITCODE_YARN_NOT_IN_PATH,
+    EXITCODE_YARN_VERSION_NOT_SUITABLE,
     group_by_key,
     get_app_info,
     nologger,
@@ -55,12 +57,23 @@ def _setup_config_modifications(logger, config, config_path):
                'checked out.')
         logger('If you do not have code currently checked out, enter the directory you would like '
                'code to be downloaded to.')
-        logger('[default: {}]:'.format(yellow(default_code_directory)), end='')
+        logger('[current value: {}]:'.format(yellow(default_code_directory)), end='')
         requested_code_directory = os.path.realpath(input(' ').strip() or default_code_directory)
         os.makedirs(requested_code_directory, exist_ok=True)
 
         logger('Code directory set to ' + yellow(requested_code_directory))
         interim_config['code']['directory'] = requested_code_directory
+
+        current_decryption = interim_config['credentials']['sops']
+        logger('')
+        logger('Do you want to decrypt credentials automatically (requires security clearance)?')
+        logger('Y/N [current value: {}]:'.format(yellow('Y' if current_decryption is True else 'N')), end='')
+        decrypt_credentials = (True if input(' ').strip().lower() == 'y' else False)
+
+        logger('Credentials ' +
+               (yellow('will') if decrypt_credentials else red('will not')) +
+               ' be decrypted automatically.')
+        interim_config['credentials']['sops'] = decrypt_credentials
 
         save_config(interim_config, config_path)
 
@@ -80,6 +93,7 @@ def _setup_logging_directory(config):
             return e.errno
 
     return 0
+
 
 def _setup_check_git_available(logger):
     logger(bold('Verifying Git is available ...'))
@@ -176,7 +190,6 @@ def _setup_download_repos(logger, config, settings):
     logger(bold('Checking authentication with GitHub ...'))
 
     try:
-
         retcode = subprocess.call(['ssh', '-T', 'git@github.com'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if retcode != 1:
