@@ -66,14 +66,22 @@ for each word will be killed (eg 'k search briefs' will take down the search-api
 #### Q / Quit
 Kill all running apps and quit back to your shell.
 
-## Configuration
-You can configure certain aspects of the runner by editing config/config.yml (after initial setup). Configurable options
-includes:
+## Configuration and settings
+You can configure certain aspects of the runner by editing config/config.yml (after initial setup).
+
+There are two files that determine the majority of the mutable state of the dmrunner - ``config/config.yml`` and
+``config/settings.yml``.
+
+``config.yml`` is intended to be a user-edited file and is derived from  ``config/example-config.yml``.  Configurable options include:
 * The parent directory to scan for Digital Marketplace repositories
 * Whether, and where, to persistently store application logs to disk
 * Highlighting in logs displayed to the terminal
 * Indentation on wrapped log lines in the display
 * Whether or not the runner should automatically inject required credentials/tokens for supporting services (e.g. Notify).
+
+``settings.yml`` should be shared state across all users of the dmrunner in most cases, and
+lists (for example), the URLs for each of the apps, which apps there are to run and in which order they need to be run,
+what frameworks need to be indexed for search, etc.
 
 ## Troubleshooting
 * Troubleshooting tips to go here...
@@ -82,4 +90,4 @@ includes:
 * Refactoring...
 * Add Nix detection to setup and, by default, run apps using Nix to avoid local requirements on node/npm/bower/etc.
 * Allow use of frontend-build:watch to continually rebuild assets
-* Need to install postgresql locally (api requires pg_config) even if using docker.
+* Need to install postgresql locally (api requires pg_config) even if using docker (this is a digitalmarketplace-api dependency, not a dmrunner dependency, but you're likely to come across it using this).
