@@ -10,4 +10,4 @@ psycopg2==2.7.3.2
 PyYAML==3.12
 readline==6.2.4.1
 requests==2.18.4
-ruamel.yaml==0.15.35
+ruamel.yaml==0.15.42
