@@ -1,0 +1,3 @@
+# Configuration for `black` python formatting
+[tool.black]
+line-length = 120

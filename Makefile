@@ -37,3 +37,11 @@ nix: virtualenv
 .PHONY: nix-rebuild
 nix-rebuild: virtualenv
 	${VIRTUALENV_ROOT}/bin/python main.py --nix --rebuild ${ARGS} run
+
+.PHONY: black
+black: install
+	${VIRTUALENV_ROOT}/bin/black config/ dmrunner/ main.py setup.py
+
+.PHONY: test-black
+test-black: install
+	${VIRTUALENV_ROOT}/bin/black --check config/ dmrunner/ main.py setup.py

@@ -25,17 +25,31 @@ Refactor DMService/DMProcess overlap
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rebuild', '-r', action='store_true',
-                        help='Do a rebuild for all apps (equivalent to using `make run-all`). This will take '
-                             'longer on initial startup but will help to ensure everything is in the best state.')
-    parser.add_argument('--config-path', '-c', type=str, default='config/config.yml',
-                        help='Path to your configuration file, which will be created from the example config if it does'
-                             'not already exist (default: config/config.yml).')
-    parser.add_argument('command', type=str, default='run', choices=RUNNER_COMMANDS,
-                        help="'config': Creates a local copy of configuration for you to edit.\n"
-                             " 'setup': Performs setup and checks that your environment meets DM requirements.\n"
-                             "  'data': Abridged setup to clean and refresh Postgres and Elasticsearch data.\n"
-                             "   'run': Run the Digital Marketplace (default)")
+    parser.add_argument(
+        "--rebuild",
+        "-r",
+        action="store_true",
+        help="Do a rebuild for all apps (equivalent to using `make run-all`). This will take "
+        "longer on initial startup but will help to ensure everything is in the best state.",
+    )
+    parser.add_argument(
+        "--config-path",
+        "-c",
+        type=str,
+        default="config/config.yml",
+        help="Path to your configuration file, which will be created from the example config if it does"
+        "not already exist (default: config/config.yml).",
+    )
+    parser.add_argument(
+        "command",
+        type=str,
+        default="run",
+        choices=RUNNER_COMMANDS,
+        help="'config': Creates a local copy of configuration for you to edit.\n"
+        " 'setup': Performs setup and checks that your environment meets DM requirements.\n"
+        "  'data': Abridged setup to clean and refresh Postgres and Elasticsearch data.\n"
+        "   'run': Run the Digital Marketplace (default)",
+    )
 
     args = parser.parse_args()
 
@@ -43,5 +57,5 @@ def main():
     runner.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
