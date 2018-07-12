@@ -26,6 +26,7 @@ You must have the following tools available in order to successfully use the DM 
 ## `make` commands
 ### Options
 * `make setup` - Verifies your local environment is suitable and performs basic setup.
+* `make data` - Performs an abridged setup that removes your existing managed Postgres and Elasticsearch and repopulates them with fresh data.
 * `make`/`make run` - Launches all repos using `make run-app`.
 * `make rebuild` - Launches all repos with an initial `make run-all` to build eg frontend assets.
 

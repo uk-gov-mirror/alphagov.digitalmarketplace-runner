@@ -34,6 +34,7 @@ def main():
     parser.add_argument('command', type=str, default='run', choices=RUNNER_COMMANDS,
                         help="'config': Creates a local copy of configuration for you to edit.\n"
                              " 'setup': Performs setup and checks that your environment meets DM requirements.\n"
+                             "  'data': Abridged setup to clean and refresh Postgres and Elasticsearch data.\n"
                              "   'run': Run the Digital Marketplace (default)")
 
     args = parser.parse_args()
