@@ -63,7 +63,7 @@ def get_yes_no_input(logger, text, default=None):
     y = "Y" if default == "y" else "y"
     n = "N" if default == "n" else "n"
 
-    prompt = f'{text} [{yellow(y)}/{yellow(n)}]'
+    prompt = f"{text} [{yellow(y)}/{yellow(n)}]"
     user_input = ""
 
     while not user_input:
