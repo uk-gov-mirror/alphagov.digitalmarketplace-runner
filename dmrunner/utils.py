@@ -50,12 +50,27 @@ def green(text):
     return colored.stylize(text, colored.fg("green"))
 
 
-def get_yes_no_input(logger, text):
+def get_yes_no_input(logger, text, default=None):
+    """
+    >>> get_yes_no_input(print, "Yes or no?")
+    Yes or no? [y/n]
+    >>> get_yes_no_input(print, "Yes or no?", default="y")
+    Yes or no? [Y/n]
+    """
+    if default:
+        default = default.strip().lower()
+
+    y = "Y" if default == "y" else "y"
+    n = "N" if default == "n" else "n"
+
+    prompt = f"{text} [{yellow(y)}/{yellow(n)}]"
     user_input = ""
 
     while not user_input:
-        logger(text + " [" + yellow("Y") + "/" + yellow("N") + "]", end="")
+        logger(prompt, end="")
         user_input = input(" ").strip().lower()
+        if user_input == "" and default:
+            user_input = default
 
     return user_input
 

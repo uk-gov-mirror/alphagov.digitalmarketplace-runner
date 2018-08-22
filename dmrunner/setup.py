@@ -301,7 +301,7 @@ def _setup_check_postgres_data_if_required(logger, settings, use_docker_services
 
         if prompt_delete_existing:
             prompt = "Do you need want to delete any existing Postgres data dumps in order to download a newer one?"
-            if get_yes_no_input(logger, prompt) == "y":
+            if get_yes_no_input(logger, prompt, default="n") == "y":
                 sql_files = glob.glob(os.path.join(data_path, "*.sql")) + glob.glob(os.path.join(data_path, "*.sql.gz"))
                 for sql_file in sql_files:
                     logger(f"Removing file `{sql_file}` ...")
@@ -484,7 +484,7 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
                 " data, then re-populate it."
             )
 
-            if get_yes_no_input(logger, "Are you sure you want to proceed?") != "y":
+            if get_yes_no_input(logger, "Are you sure you want to proceed?", default="n") != "y":
                 exitcode = EXITCODE_SETUP_ABORT
 
             else:
