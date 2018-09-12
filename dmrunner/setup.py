@@ -144,8 +144,12 @@ def _setup_check_docker_available(logger):
         return EXITCODE_DOCKER_NOT_AVAILABLE
 
     except Exception as e:
-        logger(red('* Unknown error connecting to Docker. Please make sure it has finished starting up and is running '
-                   'properly: {}'.format(e)))
+        logger(
+            red(
+                "* Unknown error connecting to Docker. Please make sure it has finished starting up and is running "
+                "properly: {}".format(e)
+            )
+        )
         return EXITCODE_DOCKER_NOT_AVAILABLE
 
     try:

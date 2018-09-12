@@ -93,6 +93,8 @@ provided for this repository to seamlessly check and re-style your code as neede
 the necessary hooks. Alternatively, configure your IDE of choice to run the formatter on save (note: PyCharm currently
 doesn't seem to support this).
 
+**Note**: If you have your own global git hooks, this may not work. Global and local hooks cannot run at the same time.
+
 ## Todo
 * Refactoring...
 * Add Nix detection to setup and, by default, run apps using Nix to avoid local requirements on node/npm/bower/etc.
