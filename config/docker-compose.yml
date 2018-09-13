@@ -32,7 +32,7 @@ services:
     container_name: dm-nginx
     networks:
       - dmrunner
-    image: "digitalmarketplace/local-nginx:latest"
+    image: "digitalmarketplace/dmrunner-nginx"
     build:
       context: ./
       dockerfile: dockerfile.nginx
