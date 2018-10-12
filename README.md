@@ -11,7 +11,8 @@ You must have the following tools available in order to successfully use the DM 
 * Python 3 (including headers if appropriate) installed globally with `pip` and `virtualenv` packages.
 * Node v6.12.2 (consider using Node Version Manager), NPM 3+, and Yarn 1.3.2+ installed and available in your path.
   * the command `nvm alias default 6.12.2` will alias the right version of Node for you
-* You have Docker/**Docker for Mac 18.03+** installed (if you want backing services managed for you).
+* Docker/**Docker for Mac 18.03+** installed (if you want backing services managed for you).
+  * your Docker daemon starts with a measly 2GB of memory. You'll need to increase that to 4GB or Elasticsearch will flake when indexing
 * If you want to automatically decrypt and inject credentials (requires SC clearance and AWS access):
   * You have a checkout of `digitalmarketplace-credentials` and export the `DM_CREDENTIALS_REPO` environment variable with
     the path to your local checkout. `DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow instructions in README).
