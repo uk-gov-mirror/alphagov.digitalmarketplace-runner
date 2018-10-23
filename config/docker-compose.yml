@@ -18,7 +18,7 @@ services:
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
     environment:
-      - DMRUNNER_USER
+      POSTGRES_USER: $USER
 
   elasticsearch:
     container_name: dm-elasticsearch
