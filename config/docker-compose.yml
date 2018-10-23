@@ -1,4 +1,4 @@
-version: '2'
+version: '3.5'
 
 networks:
   dmrunner:
@@ -19,6 +19,11 @@ services:
       - ./sql:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: $USER
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgresql://$${POSTGRES_USER:-postgres}@localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   elasticsearch:
     container_name: dm-elasticsearch
