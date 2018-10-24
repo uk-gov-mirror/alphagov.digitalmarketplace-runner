@@ -4,6 +4,6 @@ python:
 install:
   - make install
 script:
-  - make test-black
+  - make test
 notifications:
   email: false
