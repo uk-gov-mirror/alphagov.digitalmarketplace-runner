@@ -3,7 +3,6 @@
 
 import ansicolor
 from contextlib import contextmanager
-import getpass
 import os
 import psycopg2
 import re
@@ -28,7 +27,6 @@ class DMExecutable:
             del env["VIRTUAL_ENV"]
 
         env["PYTHONUNBUFFERED"] = "1"
-        env["DMRUNNER_USER"] = getpass.getuser()
 
         return env
 
@@ -89,7 +87,9 @@ class DMServices(DMExecutable):
 
                 # Connect to Postgres with default parameters - assume a successful connection means postgres is up.
                 try:
-                    psycopg2.connect(dbname="digitalmarketplace", user=getpass.getuser(), host="localhost").close()
+                    psycopg2.connect(
+                        dbname="digitalmarketplace", user=os.getenv("USER", "postgres"), host="localhost"
+                    ).close()
                     healthcheck_result["postgres"] = True
 
                 except psycopg2.OperationalError:
@@ -231,12 +231,7 @@ class DMProcess(DMExecutable):
         self.run(app_command=self._app_command)
 
     def _get_clean_env(self):
-        clean_env = {
-            "PYTHONUNBUFFERED": "1",
-            "DMRUNNER_USER": getpass.getuser(),
-            "PATH": os.environ["PATH"],
-            "LANG": os.environ["LANG"],
-        }
+        clean_env = {"PYTHONUNBUFFERED": "1", "PATH": os.environ["PATH"], "LANG": os.environ["LANG"]}
 
         dm_env = {key: value for key, value in os.environ.items() if key.startswith("DM_")}
 

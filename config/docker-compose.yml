@@ -12,13 +12,13 @@ services:
     container_name: dm-postgres
     networks:
       - dmrunner
-    image: "postgres@sha256:888b62ebb1265a7df59258fa22227e707faa2b39d9abfe2a1d6f9e3cd5936468"
+    image: "postgres@sha256:f4603c7b8aaf418393edb8cd5e2d1abd91d686ab571302dc83f887ea4a56286b"
     ports:
       - "5432:5432"
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
     environment:
-      - DMRUNNER_USER
+      POSTGRES_USER: $USER
 
   elasticsearch:
     container_name: dm-elasticsearch
