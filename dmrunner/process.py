@@ -84,7 +84,7 @@ class DMServices(DMExecutable):
                     cluster_endpoint = requests.get("http://localhost:9200/_cluster/health")
                     healthcheck_result["elasticsearch"] = cluster_endpoint.status_code == 200
 
-                except (requests.exceptions.ConnectionError, AttributeError) as e:
+                except (requests.exceptions.ConnectionError, AttributeError):
                     healthcheck_result["elasticsearch"] = False
 
                 # Connect to Postgres with default parameters - assume a successful connection means postgres is up.
@@ -103,7 +103,7 @@ class DMServices(DMExecutable):
 
                 time.sleep(1)
 
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             print(sys.exc_info())
             sys.exit(EXITCODE_NOT_ANTICIPATED_EXECUTION)
 

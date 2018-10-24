@@ -45,3 +45,10 @@ black: install
 .PHONY: test-black
 test-black: install
 	${VIRTUALENV_ROOT}/bin/black --check config/ dmrunner/ main.py setup.py
+
+.PHONY: test-pyflakes
+test-pyflakes: install
+	${VIRTUALENV_ROOT}/bin/pyflakes config/ dmrunner/ main.py setup.py
+
+.PHONY: test
+test: test-black test-pyflakes
