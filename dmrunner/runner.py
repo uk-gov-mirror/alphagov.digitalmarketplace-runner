@@ -289,7 +289,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
                 except requests.exceptions.ConnectionError:
                     time.sleep(0.5)
 
-                except json.decoder.JSONDecodeError as e:
+                except json.decoder.JSONDecodeError:
                     status = "unknown"
                     error_msg = "Invalid data retrieved from /_status endpoint"
                     break

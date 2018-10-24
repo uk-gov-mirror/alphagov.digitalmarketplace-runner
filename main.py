@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
-import re
-import subprocess
-import sys
-import yaml
 from dmrunner.runner import DMRunner, RUNNER_COMMANDS
 
 """
