@@ -9,6 +9,7 @@ import re
 import requests
 import pathlib
 import pexpect
+import platform
 import signal
 import socket
 import subprocess
@@ -54,8 +55,14 @@ class DMServices(DMExecutable):
         self.run()
 
     @staticmethod
-    def _get_docker_compose_filepaths(docker_compose_folder: Path) -> List[str]:
-        return [pathlib.Path(docker_compose_folder) / "docker-compose.yml"]
+    def _get_docker_compose_filepaths(docker_compose_folder: Path) -> List[Path]:
+        docker_compose_folder = pathlib.Path(docker_compose_folder)
+        docker_compose_machine_filepath = docker_compose_folder / f"docker-compose.{platform.system()}.yml"
+
+        if not docker_compose_machine_filepath.exists():
+            raise RuntimeError(f"operating system {platform.system()} is not yet supported as host for dmrunner")
+
+        return [docker_compose_folder / "docker-compose.yml", docker_compose_machine_filepath]
 
     @staticmethod
     def _get_docker_compose_command(docker_compose_filepaths: Sequence[Path], docker_arg: str) -> List[str]:
