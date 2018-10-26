@@ -7,7 +7,7 @@ RUN apk update && \
     touch /run/nginx/nginx.pid && \
     echo "dev-user:$apr1$TsFsw2w3$0/IUik8rZLq8MevCuODap" >> /etc/nginx/.htpasswd
 
-COPY nginx/docker_nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 

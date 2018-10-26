@@ -34,8 +34,7 @@ services:
       - dmrunner
     image: "digitalmarketplace/dmrunner-nginx"
     build:
-      context: ./
-      dockerfile: dockerfile.nginx
+      context: ./dmrunner-nginx
     ports:
       - "80:80"
 
