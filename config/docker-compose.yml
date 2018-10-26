@@ -35,4 +35,3 @@ services:
       context: ./dmrunner-nginx
     ports:
       - "80:80"
-
