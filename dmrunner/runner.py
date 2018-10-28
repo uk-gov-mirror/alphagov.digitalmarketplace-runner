@@ -245,6 +245,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         for repository_name in itertools.chain.from_iterable(self._app_repositories):
             app_name = self.settings["repositories"][repository_name]["name"]
 
+            # BUG: is this dict used anywhere?
             app = self._manager.dict()
             app["name"] = app_name
             app["process"] = PROCESS_NOEXIST
