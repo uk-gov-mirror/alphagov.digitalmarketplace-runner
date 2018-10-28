@@ -111,7 +111,7 @@ def nologger(*args, **kwargs):
 
 def load_config(config_path, must_exist=False) -> Tuple[int, Dict]:
     exitcode = 0
-    interim_config = {}
+    interim_config: Dict = {}
 
     try:
         with open(config_path, "rt") as config_file:
