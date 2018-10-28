@@ -2,7 +2,7 @@ import colored
 import itertools
 import os
 import ruamel.yaml
-from typing import Tuple, Dict
+from typing import Dict, List, Tuple
 
 APP_COMMAND_RESTART = "run"
 APP_COMMAND_REBUILD = "rebuild"
@@ -75,7 +75,7 @@ def get_yes_no_input(logger, text, default=None):
     return user_input
 
 
-def group_by_key(dictionary, key, include_missing=False):
+def group_by_key(dictionary: Dict[str, Dict[str, Dict]], key: str, include_missing=False) -> List[List[str]]:
     """Returns a nested list of app names which config wants us to run to bring up the Digital Marketplace locally.
     Each sublist must come up completely before the next list will be executed. This allows APIs to come up before
     frontends, preventing errors that might otherwise occur due to services not being available."""
