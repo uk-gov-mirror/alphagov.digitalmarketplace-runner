@@ -86,7 +86,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         self._processes: dict = {}
         self._dmservices = None
         self._main_log_name = "manager"
-        self.config = {}
+        self.config: Dict = {}
 
         # Temporarily ignore SIGINT while setting up multiprocessing components.
         # START
@@ -94,7 +94,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         self._manager = multiprocessing.Manager()
-        self._apps = self._manager.dict()
+        self._apps: Dict = self._manager.dict()
 
         signal.signal(signal.SIGINT, curr_signal)  # Probably a race condition?
         # END
