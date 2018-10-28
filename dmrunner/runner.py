@@ -77,7 +77,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         assert command in RUNNER_COMMANDS
 
         # Some state flags/vars used by eg the UI/event loop
-        self._primary_attached_app: Dict = None
+        self._primary_attached_app: Optional[Dict] = None
         self._shutdown: threading.Event = threading.Event()
         self._awaiting_input: bool = False
         self._suppress_log_printing: bool = False
