@@ -1,6 +1,7 @@
 venv*/
 logs/*
 __pycache__
+.mypy_cache
 
 config/config.yml
 config/sql/data/*
