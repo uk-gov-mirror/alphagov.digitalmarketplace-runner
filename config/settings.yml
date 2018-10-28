@@ -5,8 +5,8 @@
 # moving under each 'repositories' key.
 base-git-url: git@github.com:alphagov
 
-# The path to the Docker compose file used for running services. This shouldn't need to change.
-docker-compose-filepath: config/docker-compose.yml
+# The path to the Docker compose files used for running services. This shouldn't need to change.
+docker-compose-path: config
 
 # The host to query when running healthchecks on apps
 server: localhost
