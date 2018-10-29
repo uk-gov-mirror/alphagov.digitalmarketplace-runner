@@ -20,7 +20,7 @@ import sys
 import textwrap
 import time
 import threading
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 import yaml
 
 from .process import DMProcess, DMServices
@@ -342,7 +342,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
 
         self.print_out(log_entry, app_name=log_name, end=end)
 
-    def _find_matching_apps(self, selectors: Optional[List] = None) -> Tuple[str]:
+    def _find_matching_apps(self, selectors: Optional[List] = None) -> Tuple[str, ...]:
+        found_apps: Iterable[str]
+
         if not selectors:
             found_apps = self._apps.keys()
         else:
