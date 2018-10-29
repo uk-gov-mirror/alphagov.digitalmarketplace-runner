@@ -20,7 +20,7 @@ import sys
 import textwrap
 import time
 import threading
-from typing import Any, Dict, Iterable, List, Optional, Set, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Set, Sequence, Tuple, cast
 import yaml
 
 from .process import DMProcess, DMServices
@@ -229,7 +229,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
             pass
 
     def _get_app_name(self, repository: str) -> str:
-        return self.settings["repositories"][repository]["name"]
+        return cast(str, self.settings["repositories"][repository]["name"])
 
     def _app_name_completer(self, text: str, state: int) -> Optional[str]:
         """Used by readline to provide tab completion of app names."""
