@@ -20,7 +20,7 @@ import sys
 import textwrap
 import time
 import threading
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 import yaml
 
 from .process import DMProcess, DMServices
@@ -81,7 +81,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         self._shutdown: threading.Event = threading.Event()
         self._awaiting_input: bool = False
         self._suppress_log_printing: bool = False
-        self._filter_logs: list = []
+        self._filter_logs: Sequence[str] = []
         self._use_docker_services: bool = False
         self._processes: dict = {}
         self._dmservices = None
