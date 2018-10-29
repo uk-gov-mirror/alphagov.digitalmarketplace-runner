@@ -20,7 +20,7 @@ import sys
 import textwrap
 import time
 import threading
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Set, Sequence, Tuple
 import yaml
 
 from .process import DMProcess, DMServices
@@ -579,9 +579,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
         self.print_out(branches_table.get_string())
 
     def cmd_restart_down_apps(self, selectors: list, rebuild: bool = False) -> None:
-        matched_apps = self._find_matching_apps(selectors)
-        recovered_apps = set()
-        failed_apps = set()
+        matched_apps: Iterable[str] = self._find_matching_apps(selectors)
+        recovered_apps: Set[str] = set()
+        failed_apps: Set[str] = set()
 
         for repos in self._app_repositories:
             for repo in repos:
