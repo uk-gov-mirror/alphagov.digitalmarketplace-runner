@@ -20,7 +20,7 @@ import sys
 import textwrap
 import time
 import threading
-from typing import List, Optional, Tuple, Dict
+from typing import Any, Dict, List, Optional, Tuple
 import yaml
 
 from .process import DMProcess, DMServices
@@ -94,7 +94,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         self._manager = multiprocessing.Manager()
-        self._apps: Dict = self._manager.dict()
+        self._apps: Dict[str, Dict[str, Any]] = self._manager.dict()
 
         signal.signal(signal.SIGINT, curr_signal)  # Probably a race condition?
         # END
