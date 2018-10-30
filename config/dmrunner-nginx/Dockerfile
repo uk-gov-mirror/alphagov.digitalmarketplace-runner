@@ -4,10 +4,9 @@ RUN apk update && \
     apk add nginx && \
     adduser -D -u 1000 -g 'www' www && \
     mkdir -p /run/nginx && \
-    touch /run/nginx/nginx.pid && \
-    echo "dev-user:$apr1$TsFsw2w3$0/IUik8rZLq8MevCuODap" >> /etc/nginx/.htpasswd
+    touch /run/nginx/nginx.pid
 
-COPY nginx/docker_nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 

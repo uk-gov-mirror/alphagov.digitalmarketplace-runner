@@ -1,11 +1,9 @@
-version: '2'
+version: '3.5'
 
 networks:
   dmrunner:
+    name: dm-net
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
 
 services:
   postgres:
@@ -34,8 +32,6 @@ services:
       - dmrunner
     image: "digitalmarketplace/dmrunner-nginx"
     build:
-      context: ./
-      dockerfile: dockerfile.nginx
+      context: ./dmrunner-nginx
     ports:
       - "80:80"
-
