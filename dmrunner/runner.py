@@ -20,7 +20,7 @@ import sys
 import textwrap
 import time
 import threading
-from typing import List, Optional, Tuple, Dict
+from typing import Any, Dict, Iterable, List, Optional, Set, Sequence, Tuple, cast
 import yaml
 
 from .process import DMProcess, DMServices
@@ -77,16 +77,16 @@ fe / frontend - Run `make frontend-build` against specified apps*
         assert command in RUNNER_COMMANDS
 
         # Some state flags/vars used by eg the UI/event loop
-        self._primary_attached_app: Dict = None
+        self._primary_attached_app: Optional[Dict] = None
         self._shutdown: threading.Event = threading.Event()
         self._awaiting_input: bool = False
         self._suppress_log_printing: bool = False
-        self._filter_logs: list = []
+        self._filter_logs: Sequence[str] = []
         self._use_docker_services: bool = False
         self._processes: dict = {}
         self._dmservices = None
         self._main_log_name = "manager"
-        self.config = {}
+        self.config: Dict = {}
 
         # Temporarily ignore SIGINT while setting up multiprocessing components.
         # START
@@ -94,7 +94,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         self._manager = multiprocessing.Manager()
-        self._apps = self._manager.dict()
+        self._apps: Dict[str, Dict[str, Any]] = self._manager.dict()
 
         signal.signal(signal.SIGINT, curr_signal)  # Probably a race condition?
         # END
@@ -229,7 +229,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
             pass
 
     def _get_app_name(self, repository: str) -> str:
-        return self.settings["repositories"][repository]["name"]
+        return cast(str, self.settings["repositories"][repository]["name"])
 
     def _app_name_completer(self, text: str, state: int) -> Optional[str]:
         """Used by readline to provide tab completion of app names."""
@@ -244,14 +244,6 @@ fe / frontend - Run `make frontend-build` against specified apps*
         the running applications."""
         for repository_name in itertools.chain.from_iterable(self._app_repositories):
             app_name = self.settings["repositories"][repository_name]["name"]
-
-            app = self._manager.dict()
-            app["name"] = app_name
-            app["process"] = PROCESS_NOEXIST
-            app["repo_path"] = os.path.join(os.path.realpath(self.config["code"]["directory"]), repository_name)
-            app["repo_name"] = repository_name
-            app["attached"] = False
-            app["commands"] = self.settings["repositories"][repository_name]["commands"].copy()
 
             self._apps[app_name] = get_app_info(repository_name, self.config, self.settings, self._manager.dict())
 
@@ -341,7 +333,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
 
         self.print_out(log_entry, app_name=log_name, end=end)
 
-    def _find_matching_apps(self, selectors: Optional[List] = None) -> Tuple[str]:
+    def _find_matching_apps(self, selectors: Optional[List] = None) -> Tuple[str, ...]:
+        found_apps: Iterable[str]
+
         if not selectors:
             found_apps = self._apps.keys()
         else:
@@ -576,9 +570,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
         self.print_out(branches_table.get_string())
 
     def cmd_restart_down_apps(self, selectors: list, rebuild: bool = False) -> None:
-        matched_apps = self._find_matching_apps(selectors)
-        recovered_apps = set()
-        failed_apps = set()
+        matched_apps: Iterable[str] = self._find_matching_apps(selectors)
+        recovered_apps: Set[str] = set()
+        failed_apps: Set[str] = set()
 
         for repos in self._app_repositories:
             for repo in repos:
