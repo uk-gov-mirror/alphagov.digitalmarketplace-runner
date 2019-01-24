@@ -10,6 +10,7 @@ import gzip
 import itertools
 import multiprocessing
 import os
+from pathlib import Path
 import psutil
 import requests
 import subprocess
@@ -47,8 +48,9 @@ from dmrunner.utils import (
 from dmrunner.process import DMServices, DMProcess, background_services, blank_context
 
 MINIMUM_DOCKER_VERSION = "18.00"
-SPECIFIC_NODE_VERSION = "v6.12.2"  # TODO: This should be pulled from the docker base image really.
-SPECIFIC_YARN_VERSION = "1.3.2"  # TODO: This should be pulled from docker base image really.
+# TODO: These should be pulled from the docker base image really.
+SPECIFIC_NODE_VERSION = Path(".nvmrc").read_text().strip()
+SPECIFIC_YARN_VERSION = "1.3.2"
 
 
 def _setup_config_modifications(logger, config, config_path):
