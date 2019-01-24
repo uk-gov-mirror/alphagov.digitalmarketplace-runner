@@ -47,10 +47,10 @@ from dmrunner.utils import (
 )
 from dmrunner.process import DMServices, DMProcess, background_services, blank_context
 
-MINIMUM_DOCKER_VERSION = "18.00"
+MINIMUM_DOCKER_VERSION = LooseVersion("18.00")
 # TODO: These should be pulled from the docker base image really.
-SPECIFIC_NODE_VERSION = Path(".nvmrc").read_text().strip()
-SPECIFIC_YARN_VERSION = "1.3.2"
+SPECIFIC_NODE_VERSION = LooseVersion(Path(".nvmrc").read_text().strip())
+SPECIFIC_YARN_VERSION = LooseVersion("1.3.2")
 
 
 def _setup_config_modifications(logger, config, config_path):
@@ -155,19 +155,21 @@ def _setup_check_docker_available(logger):
         return EXITCODE_DOCKER_NOT_AVAILABLE
 
     try:
-        v = docker_client.version()["Version"]
-        assert LooseVersion(v) >= LooseVersion(MINIMUM_DOCKER_VERSION)
+        docker_version = LooseVersion(docker_client.version()["Version"])
+        assert docker_version >= MINIMUM_DOCKER_VERSION
 
     except AssertionError:
         logger(
             yellow(
                 "* WARNING - You are running Docker version {}. If you are on macOS, you need "
-                "Docker for Mac version {} or higher.".format(v, MINIMUM_DOCKER_VERSION)
+                "Docker for Mac version {} or higher.".format(docker_version, MINIMUM_DOCKER_VERSION)
             )
         )
 
     else:
-        logger(green("* Docker is available and a suitable version appears to be installed ({}).".format(v)))
+        logger(
+            green("* Docker is available and a suitable version appears to be installed ({}).".format(docker_version))
+        )
 
     return 0
 
@@ -177,7 +179,7 @@ def _setup_check_node_version(logger):
     logger(bold("Checking Node version ..."))
 
     try:
-        node_version = subprocess.check_output(["node", "-v"], universal_newlines=True).strip()
+        node_version = LooseVersion(subprocess.check_output(["node", "-v"], universal_newlines=True).strip())
 
     except Exception:
         logger(red("* Unable to verify Node version. Please check that you have Node installed and in your path."))
@@ -185,7 +187,7 @@ def _setup_check_node_version(logger):
 
     else:
         try:
-            assert LooseVersion(node_version) == LooseVersion(SPECIFIC_NODE_VERSION)
+            assert node_version == SPECIFIC_NODE_VERSION
             logger(green("* You are using a suitable version of Node ({}).".format(node_version)))
 
         except AssertionError:
@@ -200,7 +202,7 @@ def _setup_check_yarn_version(logger):
     logger(bold("Checking Yarn version ..."))
 
     try:
-        yarn_version = subprocess.check_output(["yarn", "-v"], universal_newlines=True).strip()
+        yarn_version = LooseVersion(subprocess.check_output(["yarn", "-v"], universal_newlines=True).strip())
 
     except Exception:
         logger(red("* Unable to verify Yarn version. Please check that you have Node installed and in your path."))
@@ -208,7 +210,7 @@ def _setup_check_yarn_version(logger):
 
     else:
         try:
-            assert LooseVersion(yarn_version) >= LooseVersion(SPECIFIC_YARN_VERSION)
+            assert yarn_version >= SPECIFIC_YARN_VERSION
             logger(green("* You are using a suitable version of Yarn ({}).".format(yarn_version)))
 
         except AssertionError:
