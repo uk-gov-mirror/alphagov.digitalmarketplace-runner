@@ -9,7 +9,7 @@ repo, run `make setup` and follow the instructions, then just run `make` to brin
 ## Requirements
 You must have the following tools available in order to successfully use the DM Runner:
 * Python 3 (including headers if appropriate) installed globally with `pip` and `virtualenv` packages.
-* Node v6.12.2 (consider using Node Version Manager), NPM 3+, and Yarn 1.3.2+ installed and available in your path.
+* Node v8.12.0 (consider using Node Version Manager), NPM 6+, and Yarn 1.13.0+ installed and available in your path.
   * The command `nvm install && nvm use` will install and select the correct version of node for you
 * Docker/**Docker for Mac 18.03+** installed (if you want backing services managed for you).
   * By default, the Docker daemon starts with a max RAM allowance of only 2GB. This generally proves insufficient - you should consider raising it to around 4GB.

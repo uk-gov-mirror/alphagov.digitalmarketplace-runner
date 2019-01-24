@@ -50,7 +50,7 @@ from dmrunner.process import DMServices, DMProcess, background_services, blank_c
 MINIMUM_DOCKER_VERSION = LooseVersion("18.00")
 # TODO: These should be pulled from the docker base image really.
 SPECIFIC_NODE_VERSION = LooseVersion(Path(".nvmrc").read_text().strip())
-SPECIFIC_YARN_VERSION = LooseVersion("1.3.2")
+SPECIFIC_YARN_VERSION = LooseVersion("1.13.0")
 
 
 def _setup_config_modifications(logger, config, config_path):
