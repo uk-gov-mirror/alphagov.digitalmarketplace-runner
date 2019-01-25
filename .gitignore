@@ -1,3 +1,6 @@
+*.log
+.vagrant
+
 venv*/
 logs/*
 __pycache__
