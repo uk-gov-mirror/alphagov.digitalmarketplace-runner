@@ -1,11 +1,14 @@
+# vagrant
 *.log
 .vagrant
 
+# python
 venv*/
 logs/*
 __pycache__
 .mypy_cache
 
+# dmrunner configuration
 config/config.yml
 config/sql/data/*
 code/*
