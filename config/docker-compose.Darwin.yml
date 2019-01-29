@@ -1,0 +1,17 @@
+version: '3.5'
+
+networks:
+  dmrunner:
+    name: dm-net
+    driver: bridge
+
+services:
+  elasticsearch:
+    networks:
+      - dmrunner
+  postgres:
+    networks:
+      - dmrunner
+  nginx:
+    networks:
+      - dmrunner

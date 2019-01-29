@@ -514,7 +514,7 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
                 )
 
                 with (
-                    background_services(logger, docker_compose_filepath=settings["docker-compose-filepath"], clean=True)
+                    background_services(logger, docker_compose_folder=settings["docker-compose-path"], clean=True)
                     if use_docker_services and not exitcode
                     else blank_context()
                 ):
@@ -538,7 +538,7 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
             exitcode = exitcode or _setup_check_postgres_data_if_required(logger, settings, use_docker_services)
 
             with (
-                background_services(logger, docker_compose_filepath=settings["docker-compose-filepath"])
+                background_services(logger, docker_compose_folder=settings["docker-compose-path"])
                 if use_docker_services and not exitcode
                 else blank_context()
             ):

@@ -1,15 +1,8 @@
 version: '3.5'
 
-networks:
-  dmrunner:
-    name: dm-net
-    driver: bridge
-
 services:
   postgres:
     container_name: dm-postgres
-    networks:
-      - dmrunner
     image: "postgres@sha256:f4603c7b8aaf418393edb8cd5e2d1abd91d686ab571302dc83f887ea4a56286b"
     ports:
       - "5432:5432"
@@ -20,16 +13,12 @@ services:
 
   elasticsearch:
     container_name: dm-elasticsearch
-    networks:
-      - dmrunner
     image: "elasticsearch:5.4"
     ports:
       - "9200:9200"
 
   nginx:
     container_name: dm-nginx
-    networks:
-      - dmrunner
     image: "digitalmarketplace/dmrunner-nginx"
     build:
       context: ./dmrunner-nginx

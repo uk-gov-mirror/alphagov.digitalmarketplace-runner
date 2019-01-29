@@ -8,6 +8,7 @@ import itertools
 import json
 import multiprocessing
 import os
+import pathlib
 import prettytable
 import psutil
 import re
@@ -354,8 +355,8 @@ fe / frontend - Run `make frontend-build` against specified apps*
         return tuple(found_apps)
 
     def _start_services(self):
-        docker_compose_filepath = os.path.join(os.path.realpath("."), self.settings["docker-compose-filepath"])
-        self._dmservices = DMServices(logger=self.logger, docker_compose_filepath=docker_compose_filepath)
+        docker_compose_folder = pathlib.Path(pathlib.Path.cwd(), self.settings["docker-compose-path"])
+        self._dmservices = DMServices(logger=self.logger, docker_compose_folder=docker_compose_folder)
         self._dmservices.blocking_healthcheck(self._shutdown)
 
     def _stylize(self, text, **styles):
