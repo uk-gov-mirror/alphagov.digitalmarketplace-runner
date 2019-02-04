@@ -2,9 +2,10 @@
 
 ## Digital Marketplace Runner
 A utility to run your API/frontend repositories together (and backing services if required), while allowing you to
-interact with the running processes and their logs. This script is primarily compatible with OSX; running against other
-OSs may require some care and consideration. At its simplest, as an existing developer, you should be able to clone this
-repo, run `make setup` and follow the instructions, then just run `make` to bring up all your checked out apps.
+interact with the running processes and their logs. This script is primarily compatible with macOS and Ubuntu 16.04;
+running against other OSs may require some care and consideration. At its simplest, as an existing developer, you should
+be able to clone this repo, run `make setup` and follow the instructions, then just run `make` to bring up all your
+checked out apps.
 
 ## Requirements
 You must have the following tools available in order to successfully use the DM Runner:
@@ -20,10 +21,24 @@ You must have the following tools available in order to successfully use the DM 
 
 ## Instructions
 1. Ensure your environment meets the requirements.
-1. Clone this repository into an empty directory (e.g. `~/gds`, `~/dm`, or whatever), so that you have something like
+2. Clone this repository into an empty directory (e.g. `~/gds`, `~/dm`, or whatever), so that you have something like
 `~/gds/dmrunner`.
-2. Run `make setup` - follow instructions.
+3. Run `make setup` - follow instructions.
 4. Run `make` to bring up the Digital Marketplace locally.
+
+## Using a virtual machine
+
+If you do not use macOS or wish to use a completely isolated environment to use DM Runner you can alternatively use the
+provided `Vagrantfile` to create a virtual machine which contains DM Runner on a Linux box. To use this the only
+requirements are to have Vagrant and VirtualBox installed. You can then access the system using
+
+```
+vagrant up
+vagrant ssh
+cd ~/digitalmarketplace/digitalmarketplace-runner
+```
+
+Then follow the above instructions from step 3.
 
 ## `make` commands
 ### Options
