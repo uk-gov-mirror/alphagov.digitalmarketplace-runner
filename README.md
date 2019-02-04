@@ -25,6 +25,20 @@ You must have the following tools available in order to successfully use the DM 
 3. Run `make setup` - follow instructions.
 4. Run `make` to bring up the Digital Marketplace locally.
 
+## Using a virtual machine
+
+If you do not use macOS or wish to use a completely isolated environment to use DM Runner you can alternatively use the
+provided `Vagrantfile` to create a virtual machine which contains DM Runner on a Linux box. To use this the only
+requirements are to have Vagrant and VirtualBox installed. You can then access the system using
+
+```
+vagrant up
+vagrant ssh
+cd ~/digitalmarketplace/digitalmarketplace-runner
+```
+
+Then follow the above instructions from step 3.
+
 ## `make` commands
 ### Options
 * `make setup` - Verifies your local environment is suitable and performs basic setup.
