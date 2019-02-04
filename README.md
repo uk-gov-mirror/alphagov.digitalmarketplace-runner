@@ -2,9 +2,10 @@
 
 ## Digital Marketplace Runner
 A utility to run your API/frontend repositories together (and backing services if required), while allowing you to
-interact with the running processes and their logs. This script is primarily compatible with macOS; running against other
-OSs may require some care and consideration. At its simplest, as an existing developer, you should be able to clone this
-repo, run `make setup` and follow the instructions, then just run `make` to bring up all your checked out apps.
+interact with the running processes and their logs. This script is primarily compatible with macOS and Ubuntu 16.04;
+running against other OSs may require some care and consideration. At its simplest, as an existing developer, you should
+be able to clone this repo, run `make setup` and follow the instructions, then just run `make` to bring up all your
+checked out apps.
 
 ## Requirements
 You must have the following tools available in order to successfully use the DM Runner:
