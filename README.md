@@ -20,9 +20,9 @@ You must have the following tools available in order to successfully use the DM 
 
 ## Instructions
 1. Ensure your environment meets the requirements.
-1. Clone this repository into an empty directory (e.g. `~/gds`, `~/dm`, or whatever), so that you have something like
+2. Clone this repository into an empty directory (e.g. `~/gds`, `~/dm`, or whatever), so that you have something like
 `~/gds/dmrunner`.
-2. Run `make setup` - follow instructions.
+3. Run `make setup` - follow instructions.
 4. Run `make` to bring up the Digital Marketplace locally.
 
 ## `make` commands
