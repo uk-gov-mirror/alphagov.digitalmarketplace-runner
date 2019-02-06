@@ -1,0 +1,12 @@
+# PyUp config
+# https://pyup.io/docs/bot/config/
+ # Check dependencies in _only_ requirements-app and requirements-dev, and open PRs with PyUp prefix.
+
+search: False
+
+requirements:
+
+  - requirements.txt:
+      update: all
+
+pr_prefix: "PyUp - "
