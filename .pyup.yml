@@ -1,0 +1,11 @@
+# PyUp config
+# https://pyup.io/docs/bot/config/
+
+search: False
+
+requirements:
+
+  - requirements.txt:
+      update: all
+
+pr_prefix: "PyUp - "
