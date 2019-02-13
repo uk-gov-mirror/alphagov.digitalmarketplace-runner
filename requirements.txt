@@ -10,7 +10,7 @@ prettytable==0.7.2
 psutil==5.2.2
 psycopg2==2.7.3.2
 pyflakes==2.0.0
-PyYAML==3.12
+PyYAML==3.13
 readline==6.2.4.1
 requests==2.20.0
 ruamel.yaml==0.15.42
