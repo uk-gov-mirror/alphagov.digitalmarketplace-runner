@@ -8,7 +8,7 @@ mypy==0.641
 pexpect==4.3.1
 prettytable==0.7.2
 psutil==5.2.2
-psycopg2==2.7.3.2
+psycopg2==2.7.7
 pyflakes==2.0.0
 PyYAML==3.13
 readline==6.2.4.1
