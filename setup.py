@@ -8,7 +8,7 @@ with open("requirements.txt") as reqfile:
 
 setup(
     name="dmrunner",
-    version="1.0.0",
+    version="1.0.1",
     description="A small utility for running and managing core Digital Marketplace apps.",
     author="Samuel Williams",
     author_email="Samuel.Williams@digital.cabinet-office.gov.uk",
