@@ -11,7 +11,7 @@ docker-compose-path: config
 # The host to query when running healthchecks on apps
 server: localhost
 
-data-dump-url: https://drive.google.com/drive/u/0/folders/0B9HQ_eYjd1zjWm9DaEpNUzZhRzg
+data-dump-url: https://s3.console.aws.amazon.com/s3/buckets/digitalmarketplace-cleaned-db-dumps
 sql-data-path: config/sql/data
 
 # Details repositories to be downloaded, bootstrapped, and executed.
