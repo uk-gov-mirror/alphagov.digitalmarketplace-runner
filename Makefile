@@ -2,6 +2,8 @@ SHELL := /bin/bash
 VIRTUALENV_ROOT := $(shell [ -z $$VIRTUAL_ENV ] && echo $$(pwd)/venv || echo $$VIRTUAL_ENV)
 .DEFAULT_GOAL := run
 
+export COMPOSE_PROJECT_NAME := dmrunner
+
 .PHONY: virtualenv
 virtualenv:
 	[ -z $$VIRTUAL_ENV ] && [ ! -d venv ] && python3 -m venv venv || true
