@@ -9,6 +9,10 @@ services:
       - ./sql:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: $USER
+    healthcheck:
+      test: "pg_isready --host=localhost --user=$${POSTGRES_USER:-postgres} || exit 1"
+      interval: 30s
+      start_period: 2m
 
   elasticsearch:
     image: "elasticsearch:5.6"
