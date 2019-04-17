@@ -16,8 +16,8 @@ services:
       - "9200:9200"
 
   nginx:
-    image: "digitalmarketplace/dmrunner-nginx"
-    build:
-      context: ./dmrunner-nginx
+    image: "nginx:1.14-alpine"
     ports:
       - "80:80"
+    volumes:
+      - "./dmrunner-nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
