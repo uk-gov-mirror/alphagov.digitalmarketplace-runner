@@ -16,6 +16,10 @@ services:
 
   elasticsearch:
     image: "elasticsearch:5.6"
+    healthcheck:
+      test: "curl --fail --silent --show-error --location http://localhost:9200/_cluster/health || exit 1"
+      interval: 30s
+      start_period: 1m
     ports:
       - "9200:9200"
 
