@@ -43,7 +43,7 @@ class DMServices(DMExecutable):
     def __init__(self, logger, docker_compose_folder: Path, docker_arg="up", log_name="services"):
         self._logger = logger
         self._docker_compose_filepaths: Sequence[Path] = self._get_docker_compose_filepaths(docker_compose_folder)
-        self._docker_arg = docker_arg
+        self._docker_args = docker_arg.split()
         self._log_name = log_name
 
         self._service_process = None
@@ -65,24 +65,24 @@ class DMServices(DMExecutable):
         return [docker_compose_folder / "docker-compose.yml", docker_compose_machine_filepath]
 
     @staticmethod
-    def _get_docker_compose_command(docker_compose_filepaths: Sequence[Path], docker_arg: str) -> List[str]:
+    def _get_docker_compose_command(docker_compose_filepaths: Sequence[Path], docker_args: Sequence[str]) -> List[str]:
         """Construct a `docker-compose` invocation.
 
         >>> DMServices._get_docker_compose_command(
         ...     ["docker-compose.yml"],
-        ...     "up",
+        ...     ["up"],
         ... )
         ['docker-compose', '-f', 'docker-compose.yml', 'up']
         >>> DMServices._get_docker_compose_command(
         ...     ["docker-compose.yml", "docker-compose.Linux.yml"],
-        ...     "up",
+        ...     ["up"],
         ... )
         ['docker-compose', '-f', 'docker-compose.yml', '-f', 'docker-compose.Linux.yml', 'up']
         """
-        command = ["docker-compose"]
+        command: List[str] = ["docker-compose"]
         for compose_file in docker_compose_filepaths:
             command += ["-f", str(compose_file)]
-        command.append(docker_arg)
+        command += docker_args
         return command
 
     @classmethod
@@ -143,7 +143,7 @@ class DMServices(DMExecutable):
 
     def _run_in_thread(self):
         self._service_process = subprocess.Popen(
-            self._get_docker_compose_command(self._docker_compose_filepaths, self._docker_arg),
+            self._get_docker_compose_command(self._docker_compose_filepaths, self._docker_args),
             env=self._get_clean_env(),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -227,7 +227,7 @@ class DMServices(DMExecutable):
 def background_services(logger, docker_compose_folder: Path, clean=False):
     if clean is True:
         logger(bold("Destroying existing containers ..."))
-        services = DMServices(logger=logger, docker_compose_folder=docker_compose_folder, docker_arg="down")
+        services = DMServices(logger=logger, docker_compose_folder=docker_compose_folder, docker_arg="down -v")
         services.wait()
 
     shutdown_event = threading.Event()

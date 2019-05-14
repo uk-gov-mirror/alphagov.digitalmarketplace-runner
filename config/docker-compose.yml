@@ -1,5 +1,9 @@
 version: '3.5'
 
+volumes:
+  postgres-data:
+  elasticsearch-data:
+
 services:
   postgres:
     image: "postgres@sha256:f4603c7b8aaf418393edb8cd5e2d1abd91d686ab571302dc83f887ea4a56286b"
@@ -7,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: $USER
 
@@ -14,6 +19,8 @@ services:
     image: "elasticsearch:5.6"
     ports:
       - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
 
   nginx:
     image: "nginx:1.14-alpine"
