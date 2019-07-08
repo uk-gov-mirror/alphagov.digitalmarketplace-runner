@@ -141,14 +141,14 @@ index:
         - services
         - dev
       keyword:
-        frameworks: g-cloud-10
-        index: g-cloud-10
-        create-with-mapping: services-g-cloud-10
+        frameworks: g-cloud-11
+        index: g-cloud-11
+        create-with-mapping: services-g-cloud-11
 
     - positional:
         - briefs
         - dev
       keyword:
-        frameworks: digital-outcomes-and-specialists-2
+        frameworks: digital-outcomes-and-specialists-3
         index: briefs-digital-outcomes-and-specialists
         create-with-mapping: briefs-digital-outcomes-and-specialists-2
