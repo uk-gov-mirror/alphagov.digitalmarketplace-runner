@@ -4,13 +4,19 @@ VIRTUALENV_ROOT := $(shell [ -z $$VIRTUAL_ENV ] && echo $$(pwd)/venv || echo $$V
 
 export COMPOSE_PROJECT_NAME := dmrunner
 
+.PHONY: brew
+brew:
+	brew bundle
+	pyenv install --skip-existing && pyenv version
+	. /usr/local/opt/nvm/nvm.sh && nvm install && npm install -g yarn
+
 .PHONY: virtualenv
 virtualenv:
 	[ -z $$VIRTUAL_ENV ] && [ ! -d venv ] && python3 -m venv venv || true
 
 .PHONY: install
 install: virtualenv
-	${VIRTUALENV_ROOT}/bin/pip install -r requirements.txt 
+	${VIRTUALENV_ROOT}/bin/pip install -r requirements.txt
 
 .PHOHY: config
 config: install
