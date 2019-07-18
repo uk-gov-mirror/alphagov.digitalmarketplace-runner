@@ -9,15 +9,23 @@ checked out apps.
 
 ## Requirements
 You must have the following tools available in order to successfully use the DM Runner:
-* Python 3 (including headers if appropriate) installed globally with `pip` and `virtualenv` packages.
-* Node v8.12.0 (consider using Node Version Manager), NPM 6+, and Yarn 1.13.0+ installed and available in your path.
+* Python 3, including headers if appropriate (consider using [pyenv]), installed with `pip` and `virtualenv` packages.
+* Node v8.12.0 (consider using [Node Version Manager]), NPM 6+, and Yarn 1.13.0+ installed and available in your path.
   * The command `nvm install && nvm use` will install and select the correct version of node for you
-* Docker/**Docker for Mac 18.03+** installed (if you want backing services managed for you).
+* [Docker CE/Docker Desktop for Mac][Docker] 18.03+ installed (if you want backing services managed for you).
   * By default, the Docker daemon starts with a max RAM allowance of only 2GB. This generally proves insufficient - you should consider raising it to around 4GB.
+
+If you are running macOS and have [Homebrew] installed then you can run `make brew` to install all these prerequisites.
+
 * If you want to automatically decrypt and inject credentials (requires SC clearance and AWS access):
   * You have a checkout of `digitalmarketplace-credentials` and export the `DM_CREDENTIALS_REPO` environment variable with
     the path to your local checkout. `DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow instructions in README).
   * After running setup, edit the `config.yml` file and change the value of `credentials->sops` to `on`.
+
+[Homebrew]: https://brew.sh
+[Node Version Manager]: https://github.com/nvm-sh/nvm
+[pyenv]: https://github.com/pyenv/pyenv
+[Docker]: https://docs.docker.com/install/
 
 ## Instructions
 1. Ensure your environment meets the requirements.
