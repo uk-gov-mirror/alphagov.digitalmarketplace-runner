@@ -9,18 +9,33 @@ checked out apps.
 
 ## Requirements
 You must have the following tools available in order to successfully use the DM Runner:
-* Python 3, including headers if appropriate (consider using [pyenv]), installed with `pip` and `virtualenv` packages.
-* Node v8.12.0 (consider using [Node Version Manager]), NPM 6+, and Yarn 1.13.0+ installed and available in your path.
-  * The command `nvm install && nvm use` will install and select the correct version of node for you
-* [Docker CE/Docker Desktop for Mac][Docker] 18.03+ installed (if you want backing services managed for you).
-  * By default, the Docker daemon starts with a max RAM allowance of only 2GB. This generally proves insufficient - you should consider raising it to around 4GB.
 
-If you are running macOS and have [Homebrew] installed then you can run `make brew` to install all these prerequisites.
+* Python 3, including headers if appropriate (consider using [pyenv]),
+  installed with `pip` and `virtualenv` packages.
+* Node v8.12.0 (consider using [Node Version Manager]), NPM 6+, and Yarn
+  1.13.0+ installed and available in your path.
+  * If you have NVM the command `nvm install && nvm use` will install and
+    select the correct version of node for you
+* [Docker CE/Docker Desktop for Mac][Docker] 18.03+ installed (if you want
+  backing services managed for you).
+  * By default, the Docker daemon starts with a max RAM allowance of only 2
+    GiB.  This generally proves insufficient - you should consider raising it
+    to around 4 GiB.
+* If you want to automatically decrypt and inject credentials (requires SC
+  clearance and AWS access):
+  * You have a checkout of `digitalmarketplace-credentials` and export the
+    `DM_CREDENTIALS_REPO` environment variable with the path to your local
+    checkout. `DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow
+    instructions in README).
+  * After running setup, edit the `config.yml` file and change the value of
+    `credentials->sops` to `on`.
 
-* If you want to automatically decrypt and inject credentials (requires SC clearance and AWS access):
-  * You have a checkout of `digitalmarketplace-credentials` and export the `DM_CREDENTIALS_REPO` environment variable with
-    the path to your local checkout. `DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow instructions in README).
-  * After running setup, edit the `config.yml` file and change the value of `credentials->sops` to `on`.
+If you are running macOS and have [Homebrew] installed then you can run `make
+brew` to install all these prerequisites. It will also suggest you source the
+file `Brewfile.env` into your environment; this will make sure that the correct
+Python and Node versions are in your path, and also ensure that you have the
+correct version of Postgres available to compile the digitalmarketplace-api
+repo against.
 
 [Homebrew]: https://brew.sh
 [Node Version Manager]: https://github.com/nvm-sh/nvm
@@ -35,7 +50,6 @@ If you are running macOS and have [Homebrew] installed then you can run `make br
 4. Run `make` to bring up the Digital Marketplace locally.
 
 ## Using a virtual machine
-
 If you do not use macOS or wish to use a completely isolated environment to use DM Runner you can alternatively use the
 provided `Vagrantfile` to create a virtual machine which contains DM Runner on a Linux box. To use this the only
 requirements are to have Vagrant and VirtualBox installed. You can then access the system using
