@@ -28,7 +28,7 @@ brew:
 	@echo -e ' \x32\xEF\xB8\x8F\xE2\x83\xA3'
 	@tput sgr0
 	@echo
-	@echo '$ source Brewfile.env'
+	@echo '$$ source Brewfile.env'
 	@echo
 	@tput bold
 	@echo -ne '\x33\xEF\xB8\x8F\xE2\x83\xA3  ' # 3
@@ -42,7 +42,7 @@ brew:
 	@echo -e ' \x34\xEF\xB8\x8F\xE2\x83\xA3'
 	@tput sgr0
 	@echo
-	@echo '$ make setup'
+	@echo '$$ make setup'
 	@echo
 	@tput bold
 	@echo '😹 Good luck! 😹'
