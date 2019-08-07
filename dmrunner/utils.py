@@ -135,4 +135,5 @@ def load_config(config_path, must_exist=False) -> Tuple[int, Dict]:
 
 def save_config(config, config_path) -> None:
     with open(config_path, "wt") as config_file:
-        config_file.write(ruamel.yaml.round_trip_dump(config))
+        dump = str(ruamel.yaml.round_trip_dump(config))
+        config_file.write(dump)
