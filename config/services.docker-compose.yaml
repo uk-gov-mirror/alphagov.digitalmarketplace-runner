@@ -1,0 +1,40 @@
+version: '3.5'
+
+volumes:
+  database:
+  elasticsearch:
+
+services:
+  database:
+    image: "postgres@sha256:f4603c7b8aaf418393edb8cd5e2d1abd91d686ab571302dc83f887ea4a56286b"
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: volume
+        source: postgres
+        target: /var/lib/postgresql/data
+      - type: bindfs
+        source: ./service/database
+        target: /docker-entrypoint-initdb.d
+        read_only: true
+    environment:
+      POSTGRES_USER: $USER
+
+  elasticsearch:
+    image: "elasticsearch:6.6.1"
+    ports:
+      - "9200:9200"
+    volumes:
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
+
+  router:
+    image: "nginx:1.14-alpine"
+    ports:
+      - "80:80"
+    volumes:
+      - type: bindfs
+        source: ./services/router/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true

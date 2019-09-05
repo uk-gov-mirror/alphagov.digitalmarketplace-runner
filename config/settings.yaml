@@ -1,0 +1,9 @@
+# This file contains mostly-static data that doesn't need to be edited by the end-user but shouldn't be embedded in
+# code directly.
+
+# The base git url used to clone repositories that need to be checked-out. If these ever end up fragmented, this needs
+# moving under each 'repositories' key.
+base-git-url: git@github.com:alphagov
+
+data-dump-url: https://s3.console.aws.amazon.com/s3/buckets/digitalmarketplace-cleaned-db-dumps
+sql-data-path: config/sql/data

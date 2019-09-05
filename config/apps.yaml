@@ -1,24 +1,11 @@
-# This file contains mostly-static data that doesn't need to be edited by the end-user but shouldn't be embedded in
-# code directly.
-
-# The base git url used to clone repositories that need to be checked-out. If these ever end up fragmented, this needs
-# moving under each 'repositories' key.
-base-git-url: git@github.com:alphagov
-
-# The path to the Docker compose files used for running services. This shouldn't need to change.
-docker-compose-path: config
-
 # The host to query when running healthchecks on apps
 server: localhost
 
-data-dump-url: https://s3.console.aws.amazon.com/s3/buckets/digitalmarketplace-cleaned-db-dumps
-sql-data-path: config/sql/data
-
 # Details repositories to be downloaded, bootstrapped, and executed.
-repositories:
-  # Core repositories to download and run.
-  digitalmarketplace-api:
+apps:
+  -
     name: api
+    repo: digitalmarketplace-api
     short-name: api
     bootstrap: make requirements-dev run-migrations
     run-order: 1
@@ -29,8 +16,9 @@ repositories:
       run: make run-app
       rebuild: make run-all
 
-  digitalmarketplace-search-api:
+  -
     name: search-api
+    repo: digitalmarketplace-search-api
     short-name: search
     bootstrap: make requirements-dev
     run-order: 1
@@ -41,8 +29,9 @@ repositories:
       run: make run-app
       rebuild: make run-all
 
-  digitalmarketplace-admin-frontend:
+  -
     name: admin-frontend
+    repo: digitalmarketplace-admin-frontend
     short-name: admin
     bootstrap: make requirements-dev frontend-build
     run-order: 2
@@ -54,8 +43,9 @@ repositories:
       rebuild: make run-all
       frontend: make frontend-build
 
-  digitalmarketplace-brief-responses-frontend:
+  -
     name: brief-responses-frontend
+    repo: digitalmarketplace-brief-responses-frontend
     short-name: brf-resp
     bootstrap: make requirements-dev frontend-build
     run-order: 2
@@ -67,8 +57,9 @@ repositories:
       rebuild: make run-all
       frontend: make frontend-build
 
-  digitalmarketplace-briefs-frontend:
+  -
     name: briefs-frontend
+    repo: digitalmarketplace-briefs-frontend
     short-name: briefs
     bootstrap: make requirements-dev frontend-build
     run-order: 2
@@ -80,8 +71,9 @@ repositories:
       rebuild: make run-all
       frontend: make frontend-build
 
-  digitalmarketplace-buyer-frontend:
+  -
     name: buyer-frontend
+    repo: digitalmarketplace-buyer-frontend
     short-name: buyer
     bootstrap: make requirements-dev frontend-build
     run-order: 2
@@ -93,8 +85,9 @@ repositories:
       rebuild: make run-all
       frontend: make frontend-build
 
-  digitalmarketplace-supplier-frontend:
+  -
     name: supplier-frontend
+    repo: digitalmarketplace-supplier-frontend
     short-name: supplier
     bootstrap: make requirements-dev frontend-build
     run-order: 2
@@ -106,8 +99,9 @@ repositories:
       rebuild: make run-all
       frontend: make frontend-build
 
-  digitalmarketplace-user-frontend:
+  -
     name: user-frontend
+    repo: digitalmarketplace-user-frontend
     short-name: user
     bootstrap: make requirements-dev frontend-build
     run-order: 2
@@ -120,12 +114,14 @@ repositories:
       frontend: make frontend-build
 
   # Additional repositories to download and bootstrap during setup, but aren't "run" like the rest of the apps.
-  digitalmarketplace-scripts:
+  -
     name: scripts
+    repo: digitalmarketplace-scripts
     bootstrap: make requirements-dev
 
-  digitalmarketplace-functional-tests:
+  -
     name: functional-tests
+    repo: digitalmarketplace-functional-tests
 
 index:
   repository: digitalmarketplace-scripts

@@ -1,3 +1,7 @@
+# sql dumps
+*.sql
+*.sql.*
+
 # vagrant
 *.log
 .vagrant
