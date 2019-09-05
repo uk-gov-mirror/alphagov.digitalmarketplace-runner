@@ -44,7 +44,7 @@ repositories:
   digitalmarketplace-admin-frontend:
     name: admin-frontend
     short-name: admin
-    bootstrap: make requirements-dev yarn-install frontend-build
+    bootstrap: make requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5004
@@ -57,7 +57,7 @@ repositories:
   digitalmarketplace-brief-responses-frontend:
     name: brief-responses-frontend
     short-name: brf-resp
-    bootstrap: make requirements-dev yarn-install frontend-build
+    bootstrap: make requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5006
@@ -70,7 +70,7 @@ repositories:
   digitalmarketplace-briefs-frontend:
     name: briefs-frontend
     short-name: briefs
-    bootstrap: make requirements-dev yarn-install frontend-build
+    bootstrap: make requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5005
@@ -83,7 +83,7 @@ repositories:
   digitalmarketplace-buyer-frontend:
     name: buyer-frontend
     short-name: buyer
-    bootstrap: make requirements-dev yarn-install frontend-build
+    bootstrap: make requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5002
@@ -96,7 +96,7 @@ repositories:
   digitalmarketplace-supplier-frontend:
     name: supplier-frontend
     short-name: supplier
-    bootstrap: make requirements-dev yarn-install frontend-build
+    bootstrap: make requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5003
@@ -109,7 +109,7 @@ repositories:
   digitalmarketplace-user-frontend:
     name: user-frontend
     short-name: user
-    bootstrap: make requirements-dev yarn-install frontend-build
+    bootstrap: make requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5007
