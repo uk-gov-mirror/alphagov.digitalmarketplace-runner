@@ -10,7 +10,7 @@ export COMPOSE_PROJECT_NAME := dmrunner
 brew:
 	brew bundle
 	pyenv install --skip-existing && pyenv version
-	. Brewfile.env ; nvm install && npm install -g yarn
+	. Brewfile.env ; nvm install
 	@tput bold
 	@echo '😸 Prerequisites have been installed! 😸'
 	@echo '😺 The following steps are recommended for a seamless experience 😺'
