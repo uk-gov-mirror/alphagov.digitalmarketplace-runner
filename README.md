@@ -12,8 +12,8 @@ You must have the following tools available in order to successfully use the DM 
 
 * Python 3, including headers if appropriate (consider using [pyenv]),
   installed with `pip` and `virtualenv` packages.
-* Node ^v10.15.0 (consider using [Node Version Manager]), NPM 6+, and Yarn
-  1.13.0+ installed and available in your path.
+* Node ^v10.15.0 (consider using [Node Version Manager]) and NPM 6+ installed
+  and available in your path.
   * If you have NVM the command `nvm install && nvm use` will install and
     select the correct version of node for you
 * [Docker CE/Docker Desktop for Mac][Docker] 18.03+ installed (if you want

@@ -68,7 +68,7 @@ sudo -H -u vagrant bash <<- EOF
 	fi
 EOF
 
-# install python, node, and yarn
+# install python, and node
 sudo -H -u vagrant bash <<- EOF
 	cd ~/digitalmarketplace/digitalmarketplace-runner
 	source /etc/profile
@@ -79,7 +79,6 @@ sudo -H -u vagrant bash <<- EOF
 
 	source /opt/nvm/nvm.sh 2> /dev/null
 	nvm install 2> /dev/null
-	npm install -g yarn
 EOF
 
 # install system dependencies for communicating with postgres

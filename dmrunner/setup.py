@@ -30,8 +30,6 @@ from dmrunner.utils import (
     EXITCODE_NODE_NOT_IN_PATH,
     EXITCODE_NODE_VERSION_NOT_SUITABLE,
     EXITCODE_SETUP_ABORT,
-    EXITCODE_YARN_NOT_IN_PATH,
-    EXITCODE_YARN_VERSION_NOT_SUITABLE,
     RUNNER_COMMAND_DATA,
     RUNNER_COMMAND_RUN,
     group_by_key,
@@ -50,7 +48,6 @@ from dmrunner.process import DMServices, DMProcess, background_services, blank_c
 MINIMUM_DOCKER_VERSION = LooseVersion("18.00")
 # TODO: These should be pulled from the docker base image really.
 SPECIFIC_NODE_VERSION = LooseVersion(Path(".nvmrc").read_text().strip())
-SPECIFIC_YARN_VERSION = LooseVersion("1.13.0")
 
 
 def _setup_config_modifications(logger, config, config_path):
@@ -193,29 +190,6 @@ def _setup_check_node_version(logger):
         except AssertionError:
             logger(red("* You have Node {} installed; you should use {}".format(node_version, SPECIFIC_NODE_VERSION)))
             exitcode = EXITCODE_NODE_VERSION_NOT_SUITABLE
-
-    return exitcode
-
-
-def _setup_check_yarn_version(logger):
-    exitcode = 0
-    logger(bold("Checking Yarn version ..."))
-
-    try:
-        yarn_version = LooseVersion(subprocess.check_output(["yarn", "-v"], universal_newlines=True).strip())
-
-    except Exception:
-        logger(red("* Unable to verify Yarn version. Please check that you have Node installed and in your path."))
-        exitcode = EXITCODE_YARN_NOT_IN_PATH
-
-    else:
-        try:
-            assert yarn_version >= SPECIFIC_YARN_VERSION
-            logger(green("* You are using a suitable version of Yarn ({}).".format(yarn_version)))
-
-        except AssertionError:
-            logger(red("* You have Yarn {} installed; you should use >={}".format(yarn_version, SPECIFIC_YARN_VERSION)))
-            exitcode = EXITCODE_YARN_VERSION_NOT_SUITABLE
 
     return exitcode
 
@@ -529,7 +503,6 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
             exitcode = exitcode or _setup_check_git_available(logger)
             exitcode = exitcode or _setup_check_docker_available(logger)
             exitcode = exitcode or _setup_check_node_version(logger)
-            exitcode = exitcode or _setup_check_yarn_version(logger)
             exitcode = exitcode or _setup_download_repos(logger, config, settings)
 
             exitcode, use_docker_services = (
