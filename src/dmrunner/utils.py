@@ -3,25 +3,28 @@ import itertools
 import os
 import ruamel.yaml
 from typing import Dict, List, Tuple
+from enum import IntEnum
 
 APP_COMMAND_RESTART = "run"
 APP_COMMAND_REBUILD = "rebuild"
 APP_COMMAND_FRONTEND = "frontend"
 
-EXITCODE_DOCKER_NOT_AVAILABLE = 1
-EXITCODE_BAD_SERVICES = 2
-EXITCODE_DOCKER_BUILD_FAILED = 3
-EXITCODE_GIT_NOT_AVAILABLE = 4
-EXITCODE_GIT_AUTH_FAILED = 5
-EXITCODE_NO_POSTGRES_DATA = 6
-EXITCODE_NOT_ANTICIPATED_EXECUTION = 7
-EXITCODE_NODE_NOT_IN_PATH = 8
-EXITCODE_NODE_VERSION_NOT_SUITABLE = 9
-EXITCODE_BOOTSTRAP_FAILED = 10
-EXITCODE_SETUP_ABORT = 11
-EXITCODE_CONFIG_NO_EXIST = 12
-EXITCODE_YARN_NOT_IN_PATH = 8
-EXITCODE_YARN_VERSION_NOT_SUITABLE = 9
+
+class ExitCode(IntEnum):
+    DOCKER_NOT_AVAILABLE = 1
+    BAD_SERVICES = 2
+    DOCKER_BUILD_FAILED = 3
+    GIT_NOT_AVAILABLE = 4
+    GIT_AUTH_FAILED = 5
+    NO_POSTGRES_DATA = 6
+    NOT_ANTICIPATED_EXECUTION = 7
+    NODE_NOT_IN_PATH = 8
+    NODE_VERSION_NOT_SUITABLE = 9
+    BOOTSTRAP_FAILED = 10
+    SETUP_ABORT = 11
+    CONFIG_NO_EXIST = 12
+    YARN_NOT_IN_PATH = 8
+    YARN_VERSION_NOT_SUITABLE = 9
 
 PROCESS_NOEXIST = -1
 PROCESS_TERMINATED = -2
@@ -31,7 +34,9 @@ RUNNER_COMMAND_DATA = "data"
 RUNNER_COMMAND_RUN = "run"
 RUNNER_COMMANDS = [RUNNER_COMMAND_SETUP, RUNNER_COMMAND_DATA, RUNNER_COMMAND_RUN]
 
-EXAMPLE_CONFIG_PATH = os.path.join(os.path.realpath("."), "config", "example-config.yml")
+EXAMPLE_CONFIG_PATH = os.path.join(
+    os.path.realpath("."), "config", "example-config.yml"
+)
 
 
 def bold(text):
@@ -75,17 +80,27 @@ def get_yes_no_input(logger, text, default=None):
     return user_input
 
 
-def group_by_key(dictionary: Dict[str, Dict[str, Dict]], key: str, include_missing=False) -> List[List[str]]:
+def group_by_key(
+    dictionary: Dict[str, Dict[str, Dict]], key: str, include_missing=False
+) -> List[List[str]]:
     """Returns a nested list of app names which config wants us to run to bring up the Digital Marketplace locally.
     Each sublist must come up completely before the next list will be executed. This allows APIs to come up before
     frontends, preventing errors that might otherwise occur due to services not being available."""
     items = filter(lambda x: key in x[1], dictionary.items())
 
     # Group by run-order and then return only the names of the apps in the groups.
-    grouped_items = [[y[0] for y in x[1]] for x in itertools.groupby(items, lambda x: x[1][key])]
+    grouped_items = [
+        [y[0] for y in x[1]] for x in itertools.groupby(items, lambda x: x[1][key])
+    ]
 
     if include_missing:
-        grouped_items.append([x[0] for x in sorted(dictionary.items(), key=lambda x: x[0]) if key not in x[1]])
+        grouped_items.append(
+            [
+                x[0]
+                for x in sorted(dictionary.items(), key=lambda x: x[0])
+                if key not in x[1]
+            ]
+        )
 
     return grouped_items
 
@@ -94,8 +109,12 @@ def get_app_info(repo_name, config, settings, container):
     """THIS NEEDS TO GO. BAD MOJO."""
 
     container["name"] = settings["repositories"][repo_name]["name"]
-    container["commands"] = settings["repositories"][repo_name].get("commands", {}).copy()
-    container["repo_path"] = os.path.join(os.path.realpath("."), config["code"]["directory"], repo_name)
+    container["commands"] = (
+        settings["repositories"][repo_name].get("commands", {}).copy()
+    )
+    container["repo_path"] = os.path.join(
+        os.path.realpath("."), config["code"]["directory"], repo_name
+    )
     container["repo_name"] = repo_name
     container["attached"] = False
     container["process"] = PROCESS_NOEXIST

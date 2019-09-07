@@ -18,7 +18,12 @@ import threading
 import time
 from typing import List, Optional, Sequence, Union
 
-from .utils import PROCESS_TERMINATED, PROCESS_NOEXIST, EXITCODE_NOT_ANTICIPATED_EXECUTION, bold
+from .utils import (
+    PROCESS_TERMINATED,
+    PROCESS_NOEXIST,
+    EXITCODE_NOT_ANTICIPATED_EXECUTION,
+    bold,
+)
 
 
 Path = Union[os.PathLike, str]
@@ -40,9 +45,13 @@ class DMExecutable:
 
 
 class DMServices(DMExecutable):
-    def __init__(self, logger, docker_compose_folder: Path, docker_arg="up", log_name="services"):
+    def __init__(
+        self, logger, docker_compose_folder: Path, docker_arg="up", log_name="services"
+    ):
         self._logger = logger
-        self._docker_compose_filepaths: Sequence[Path] = self._get_docker_compose_filepaths(docker_compose_folder)
+        self._docker_compose_filepaths: Sequence[
+            Path
+        ] = self._get_docker_compose_filepaths(docker_compose_folder)
         self._docker_args = docker_arg.split()
         self._log_name = log_name
 
@@ -57,15 +66,24 @@ class DMServices(DMExecutable):
     @staticmethod
     def _get_docker_compose_filepaths(docker_compose_folder: Path) -> List[Path]:
         docker_compose_folder = pathlib.Path(docker_compose_folder)
-        docker_compose_machine_filepath = docker_compose_folder / f"docker-compose.{platform.system()}.yml"
+        docker_compose_machine_filepath = (
+            docker_compose_folder / f"docker-compose.{platform.system()}.yml"
+        )
 
         if not docker_compose_machine_filepath.exists():
-            raise RuntimeError(f"operating system {platform.system()} is not yet supported as host for dmrunner")
+            raise RuntimeError(
+                f"operating system {platform.system()} is not yet supported as host for dmrunner"
+            )
 
-        return [docker_compose_folder / "docker-compose.yml", docker_compose_machine_filepath]
+        return [
+            docker_compose_folder / "docker-compose.yml",
+            docker_compose_machine_filepath,
+        ]
 
     @staticmethod
-    def _get_docker_compose_command(docker_compose_filepaths: Sequence[Path], docker_args: Sequence[str]) -> List[str]:
+    def _get_docker_compose_command(
+        docker_compose_filepaths: Sequence[Path], docker_args: Sequence[str]
+    ) -> List[str]:
         """Construct a `docker-compose` invocation.
 
         >>> DMServices._get_docker_compose_command(
@@ -87,7 +105,9 @@ class DMServices(DMExecutable):
 
     @classmethod
     def build_services(cls, docker_compose_filepaths: Sequence[Path]):
-        return subprocess.call(cls._get_docker_compose_command(docker_compose_filepaths, "build"))
+        return subprocess.call(
+            cls._get_docker_compose_command(docker_compose_filepaths, "build")
+        )
 
     @staticmethod
     def services_healthcheck(shutdown_event, check_once=False):
@@ -96,7 +116,9 @@ class DMServices(DMExecutable):
         healthcheck_result = {"nginx": False, "elasticsearch": False, "postgres": False}
 
         try:
-            while not all(healthcheck_result.values()) and (not shutdown_event.is_set() or check_once):
+            while not all(healthcheck_result.values()) and (
+                not shutdown_event.is_set() or check_once
+            ):
                 # Try to connect to port 80 - assume that a successful connection means nginx is listening on port 80.
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 try:
@@ -111,8 +133,12 @@ class DMServices(DMExecutable):
 
                 try:
                     # Check ES cluster health - assume that a 200 response means ES is fine.
-                    cluster_endpoint = requests.get("http://localhost:9200/_cluster/health")
-                    healthcheck_result["elasticsearch"] = cluster_endpoint.status_code == 200
+                    cluster_endpoint = requests.get(
+                        "http://localhost:9200/_cluster/health"
+                    )
+                    healthcheck_result["elasticsearch"] = (
+                        cluster_endpoint.status_code == 200
+                    )
 
                 except (requests.exceptions.ConnectionError, AttributeError):
                     healthcheck_result["elasticsearch"] = False
@@ -120,7 +146,9 @@ class DMServices(DMExecutable):
                 # Connect to Postgres with default parameters - assume a successful connection means postgres is up.
                 try:
                     psycopg2.connect(
-                        dbname="digitalmarketplace", user=os.getenv("USER", "postgres"), host="localhost"
+                        dbname="digitalmarketplace",
+                        user=os.getenv("USER", "postgres"),
+                        host="localhost",
                     ).close()
                     healthcheck_result["postgres"] = True
 
@@ -143,7 +171,9 @@ class DMServices(DMExecutable):
 
     def _run_in_thread(self):
         self._service_process = subprocess.Popen(
-            self._get_docker_compose_command(self._docker_compose_filepaths, self._docker_args),
+            self._get_docker_compose_command(
+                self._docker_compose_filepaths, self._docker_args
+            ),
             env=self._get_clean_env(),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -161,7 +191,9 @@ class DMServices(DMExecutable):
 
                 try:
                     if clean_log_entry.index("|") >= 0:
-                        service_name = clean_log_entry[: clean_log_entry.index("|")].strip()
+                        service_name = clean_log_entry[
+                            : clean_log_entry.index("|")
+                        ].strip()
                         log_entry = re.sub(r"^[^|]+\s+\|\s+", "", clean_log_entry)
 
                     else:
@@ -188,7 +220,9 @@ class DMServices(DMExecutable):
 
     def blocking_healthcheck(self, shutdown_event):
         self._thread_healthcheck = threading.Thread(
-            target=self.services_healthcheck, args=(shutdown_event,), name="Thread-Services-HC"
+            target=self.services_healthcheck,
+            args=(shutdown_event,),
+            name="Thread-Services-HC",
         )
         self._thread_healthcheck.start()
 
@@ -207,7 +241,9 @@ class DMServices(DMExecutable):
             self._log(log_entry="Services are up.", log_name=self._log_name)
 
     def run(self):
-        self._thread_process = threading.Thread(target=self._run_in_thread, name="Thread-Services")
+        self._thread_process = threading.Thread(
+            target=self._run_in_thread, name="Thread-Services"
+        )
         self._thread_process.start()
 
     def wait(self, interrupt=False):
@@ -227,11 +263,17 @@ class DMServices(DMExecutable):
 def background_services(logger, docker_compose_folder: Path, clean=False):
     if clean is True:
         logger(bold("Destroying existing containers ..."))
-        services = DMServices(logger=logger, docker_compose_folder=docker_compose_folder, docker_arg="down -v")
+        services = DMServices(
+            logger=logger,
+            docker_compose_folder=docker_compose_folder,
+            docker_arg="down -v",
+        )
         services.wait()
 
     shutdown_event = threading.Event()
-    docker_services = DMServices(logger=logger, docker_compose_folder=docker_compose_folder)
+    docker_services = DMServices(
+        logger=logger, docker_compose_folder=docker_compose_folder
+    )
 
     try:
         docker_services.blocking_healthcheck(shutdown_event)
@@ -263,18 +305,31 @@ class DMProcess(DMExecutable):
         self.run(app_command=self._app_command)
 
     def _get_clean_env(self):
-        clean_env = {"PYTHONUNBUFFERED": "1", "PATH": os.environ["PATH"], "LANG": os.environ["LANG"]}
+        clean_env = {
+            "PYTHONUNBUFFERED": "1",
+            "PATH": os.environ["PATH"],
+            "LANG": os.environ["LANG"],
+        }
 
-        dm_env = {key: value for key, value in os.environ.items() if key.startswith("DM_")}
+        dm_env = {
+            key: value for key, value in os.environ.items() if key.startswith("DM_")
+        }
 
         return {**clean_env, **dm_env}
 
     def _get_command(self, app_command):
-        return self._app["commands"][app_command] if app_command in self._app["commands"] else app_command
+        return (
+            self._app["commands"][app_command]
+            if app_command in self._app["commands"]
+            else app_command
+        )
 
     def _run_in_thread(self, app_command):
         self._app_instance = pexpect.spawn(
-            self._get_command(app_command), cwd=self._app["repo_path"], env=self._get_clean_env(), timeout=1
+            self._get_command(app_command),
+            cwd=self._app["repo_path"],
+            env=self._get_clean_env(),
+            timeout=1,
         )
 
         self._app["process"] = self._app_instance.pid
@@ -283,7 +338,9 @@ class DMProcess(DMExecutable):
             while not self._app_instance.eof():
                 try:
                     # pexpect's pseudo-tty adds Windows-style line endings even on unix systems, so need to remove \r\n.
-                    log_entry = self._app_instance.readline().decode("utf-8").strip("\r\n")
+                    log_entry = (
+                        self._app_instance.readline().decode("utf-8").strip("\r\n")
+                    )
                     self._log(log_entry, log_name=self._app["name"])
 
                 except pexpect.exceptions.TIMEOUT:
@@ -291,7 +348,9 @@ class DMProcess(DMExecutable):
                         try:
                             self._app_instance.expect("(Pdb)", timeout=0)
 
-                            log_entries = self._app_instance.before.decode("utf-8").split("\r\n")
+                            log_entries = self._app_instance.before.decode(
+                                "utf-8"
+                            ).split("\r\n")
                             for log_entry in log_entries:
                                 self._log(log_entry, log_name=self._app["name"])
 
@@ -309,7 +368,10 @@ class DMProcess(DMExecutable):
             self._log(repr(e), log_name=self._app["name"])
 
         if self._app["name"].endswith("-fe-build"):
-            self._log("Build complete for {} ".format(self._app["name"]), log_name=self._app["name"])
+            self._log(
+                "Build complete for {} ".format(self._app["name"]),
+                log_name=self._app["name"],
+            )
 
         self._app["process"] = PROCESS_TERMINATED
 
@@ -317,7 +379,9 @@ class DMProcess(DMExecutable):
         self._app["process"] = PROCESS_NOEXIST
 
         self._thread = threading.Thread(
-            target=self._run_in_thread, args=(app_command,), name="Thread-{}".format(self._app["name"])
+            target=self._run_in_thread,
+            args=(app_command,),
+            name="Thread-{}".format(self._app["name"]),
         )
         self._thread.start()
 
@@ -326,7 +390,11 @@ class DMProcess(DMExecutable):
 
         if user_input.lower().strip() in ["q", "quit", "c", "con", "cont", "continue"]:
             self._app["attached"] = False
-            self._log("Detaching from {} ...".format(self._app["name"]), log_name="manager", attach=True)
+            self._log(
+                "Detaching from {} ...".format(self._app["name"]),
+                log_name="manager",
+                attach=True,
+            )
 
     def wait(self):
         try:

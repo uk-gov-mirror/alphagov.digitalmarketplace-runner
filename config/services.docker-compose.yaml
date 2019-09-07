@@ -7,6 +7,9 @@ volumes:
 services:
   database:
     image: "postgres@sha256:f4603c7b8aaf418393edb8cd5e2d1abd91d686ab571302dc83f887ea4a56286b"
+    environment:
+      - "POSTGRES_DB=digitalmarketplace"
+      - "POSTGRES_USER=$USER"
     ports:
       - "5432:5432"
     volumes:
@@ -14,11 +17,9 @@ services:
         source: postgres
         target: /var/lib/postgresql/data
       - type: bindfs
-        source: ./service/database
+        source: ./data/services/database
         target: /docker-entrypoint-initdb.d
         read_only: true
-    environment:
-      POSTGRES_USER: $USER
 
   elasticsearch:
     image: "elasticsearch:6.6.1"
@@ -35,6 +36,6 @@ services:
       - "80:80"
     volumes:
       - type: bindfs
-        source: ./services/router/nginx.conf
+        source: ./config/services/router/nginx.conf
         target: /etc/nginx/nginx.conf
         read_only: true

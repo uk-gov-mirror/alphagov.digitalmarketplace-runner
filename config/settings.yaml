@@ -5,5 +5,5 @@
 # moving under each 'repositories' key.
 base-git-url: git@github.com:alphagov
 
-data-dump-url: https://s3.console.aws.amazon.com/s3/buckets/digitalmarketplace-cleaned-db-dumps
-sql-data-path: config/sql/data
+db-dump-url: https://s3.console.aws.amazon.com/s3/buckets/digitalmarketplace-cleaned-db-dumps
+db-dump-dir: data/services/database

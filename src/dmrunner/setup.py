@@ -67,7 +67,9 @@ def _setup_config_modifications(logger, config, config_path):
             "code to be downloaded to."
         )
         logger("[current value: {}]:".format(yellow(default_code_directory)), end="")
-        requested_code_directory = os.path.realpath(input(" ").strip() or default_code_directory)
+        requested_code_directory = os.path.realpath(
+            input(" ").strip() or default_code_directory
+        )
         os.makedirs(requested_code_directory, exist_ok=True)
 
         logger("Code directory set to " + yellow(requested_code_directory))
@@ -75,10 +77,23 @@ def _setup_config_modifications(logger, config, config_path):
 
         current_decryption = interim_config["credentials"]["sops"]
         logger("")
-        logger("Do you want to decrypt credentials automatically (requires security clearance)?")
-        logger("Y/N [current value: {}]:".format(yellow("Y" if current_decryption is True else "N")), end="")
+        logger(
+            "Do you want to decrypt credentials automatically (requires security clearance)?"
+        )
+        logger(
+            "Y/N [current value: {}]:".format(
+                yellow("Y" if current_decryption is True else "N")
+            ),
+            end="",
+        )
         cleaned_input = input(" ").strip().lower()
-        decrypt_credentials = current_decryption if not cleaned_input else True if cleaned_input == "y" else False
+        decrypt_credentials = (
+            current_decryption
+            if not cleaned_input
+            else True
+            if cleaned_input == "y"
+            else False
+        )
 
         logger(
             "Credentials "
@@ -111,11 +126,17 @@ def _setup_check_git_available(logger):
     logger(bold("Verifying Git is available ..."))
 
     try:
-        subprocess.check_call(["git", "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.check_call(
+            ["git", "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
         logger(green("* Git is available. Obviously."))
 
     except Exception:  # noqa
-        logger(red("* You do not appear to have Git installed and/or in your path. Please install it."))
+        logger(
+            red(
+                "* You do not appear to have Git installed and/or in your path. Please install it."
+            )
+        )
         return EXITCODE_GIT_NOT_AVAILABLE
 
     return 0
@@ -162,13 +183,19 @@ def _setup_check_docker_available(logger):
         logger(
             yellow(
                 "* WARNING - You are running Docker version {}. If you are on macOS, you need "
-                "Docker for Mac version {} or higher.".format(docker_version, MINIMUM_DOCKER_VERSION)
+                "Docker for Mac version {} or higher.".format(
+                    docker_version, MINIMUM_DOCKER_VERSION
+                )
             )
         )
 
     else:
         logger(
-            green("* Docker is available and a suitable version appears to be installed ({}).".format(docker_version))
+            green(
+                "* Docker is available and a suitable version appears to be installed ({}).".format(
+                    docker_version
+                )
+            )
         )
 
     return 0
@@ -179,19 +206,37 @@ def _setup_check_node_version(logger):
     logger(bold("Checking Node version ..."))
 
     try:
-        node_version = LooseVersion(subprocess.check_output(["node", "-v"], universal_newlines=True).strip())
+        node_version = LooseVersion(
+            subprocess.check_output(["node", "-v"], universal_newlines=True).strip()
+        )
 
     except Exception:
-        logger(red("* Unable to verify Node version. Please check that you have Node installed and in your path."))
+        logger(
+            red(
+                "* Unable to verify Node version. Please check that you have Node installed and in your path."
+            )
+        )
         exitcode = EXITCODE_NODE_NOT_IN_PATH
 
     else:
         try:
             assert node_version == SPECIFIC_NODE_VERSION
-            logger(green("* You are using a suitable version of Node ({}).".format(node_version)))
+            logger(
+                green(
+                    "* You are using a suitable version of Node ({}).".format(
+                        node_version
+                    )
+                )
+            )
 
         except AssertionError:
-            logger(red("* You have Node {} installed; you should use {}".format(node_version, SPECIFIC_NODE_VERSION)))
+            logger(
+                red(
+                    "* You have Node {} installed; you should use {}".format(
+                        node_version, SPECIFIC_NODE_VERSION
+                    )
+                )
+            )
             exitcode = EXITCODE_NODE_VERSION_NOT_SUITABLE
 
     return exitcode
@@ -202,19 +247,37 @@ def _setup_check_yarn_version(logger):
     logger(bold("Checking Yarn version ..."))
 
     try:
-        yarn_version = LooseVersion(subprocess.check_output(["yarn", "-v"], universal_newlines=True).strip())
+        yarn_version = LooseVersion(
+            subprocess.check_output(["yarn", "-v"], universal_newlines=True).strip()
+        )
 
     except Exception:
-        logger(red("* Unable to verify Yarn version. Please check that you have Node installed and in your path."))
+        logger(
+            red(
+                "* Unable to verify Yarn version. Please check that you have Node installed and in your path."
+            )
+        )
         exitcode = EXITCODE_YARN_NOT_IN_PATH
 
     else:
         try:
             assert yarn_version >= SPECIFIC_YARN_VERSION
-            logger(green("* You are using a suitable version of Yarn ({}).".format(yarn_version)))
+            logger(
+                green(
+                    "* You are using a suitable version of Yarn ({}).".format(
+                        yarn_version
+                    )
+                )
+            )
 
         except AssertionError:
-            logger(red("* You have Yarn {} installed; you should use >={}".format(yarn_version, SPECIFIC_YARN_VERSION)))
+            logger(
+                red(
+                    "* You have Yarn {} installed; you should use >={}".format(
+                        yarn_version, SPECIFIC_YARN_VERSION
+                    )
+                )
+            )
             exitcode = EXITCODE_YARN_VERSION_NOT_SUITABLE
 
     return exitcode
@@ -225,29 +288,50 @@ def _setup_download_repos(logger, config, settings):
     logger(bold("Checking authentication with GitHub ..."))
 
     try:
-        retcode = subprocess.call(["ssh", "-T", "git@github.com"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        retcode = subprocess.call(
+            ["ssh", "-T", "git@github.com"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
         if retcode != 1:
-            logger(red(*"Authentication failed - check that your local SSH keys have been uploaded to GitHub."))
+            logger(
+                red(
+                    *"Authentication failed - check that your local SSH keys have been uploaded to GitHub."
+                )
+            )
             return EXITCODE_GIT_AUTH_FAILED
 
         else:
             logger(green("* Authentication to Github succeeded."))
 
-        code_directory = os.path.realpath(os.path.join(".", config["code"]["directory"]))
+        code_directory = os.path.realpath(
+            os.path.join(".", config["code"]["directory"])
+        )
 
-        logger(bold(f"Ensuring you have local copies of Digital Marketplace code in {code_directory} ..."))
+        logger(
+            bold(
+                f"Ensuring you have local copies of Digital Marketplace code in {code_directory} ..."
+            )
+        )
 
         os.makedirs(code_directory, exist_ok=True)
 
-        nested_repositories = group_by_key(settings["repositories"], "run-order", include_missing=True)
+        nested_repositories = group_by_key(
+            settings["repositories"], "run-order", include_missing=True
+        )
         for repo_name in itertools.chain.from_iterable(nested_repositories):
             repo_path = os.path.join(code_directory, repo_name)
 
             if os.path.isdir(repo_path):
                 continue
 
-            logger(green("* Downloading") + " " + settings["repositories"][repo_name].get("name", repo_name) + " ")
+            logger(
+                green("* Downloading")
+                + " "
+                + settings["repositories"][repo_name].get("name", repo_name)
+                + " "
+            )
             process = subprocess.run(
                 ["git", "clone", os.path.join(settings["base-git-url"], repo_name)],
                 cwd=code_directory,
@@ -261,7 +345,11 @@ def _setup_download_repos(logger, config, settings):
                 return process.returncode
 
         if not exitcode:
-            logger(green("* Your Digital Marketplace code is all present and accounted for."))
+            logger(
+                green(
+                    "* Your Digital Marketplace code is all present and accounted for."
+                )
+            )
 
     except KeyboardInterrupt:
         exitcode = EXITCODE_SETUP_ABORT
@@ -273,12 +361,25 @@ def _setup_check_background_services(logger):
     use_docker_services = False
 
     logger(bold("Checking for existing background services..."))
-    healthcheck_passed, healthcheck_results = DMServices.services_healthcheck(threading.Event(), check_once=True)
-    first_result = next(iter(healthcheck_results.values()))  # Used to ensure all results are identical
+    healthcheck_passed, healthcheck_results = DMServices.services_healthcheck(
+        threading.Event(), check_once=True
+    )
+    first_result = next(
+        iter(healthcheck_results.values())
+    )  # Used to ensure all results are identical
 
-    if not healthcheck_passed and not all(map(lambda x: x is first_result, healthcheck_results.values())):
-        services_up = [x[0].title() for x in list(filter(lambda y: y[1] is True, healthcheck_results.items()))]
-        services_down = [x.title() for x in set(healthcheck_results.keys()) - set([x.lower() for x in services_up])]
+    if not healthcheck_passed and not all(
+        map(lambda x: x is first_result, healthcheck_results.values())
+    ):
+        services_up = [
+            x[0].title()
+            for x in list(filter(lambda y: y[1] is True, healthcheck_results.items()))
+        ]
+        services_down = [
+            x.title()
+            for x in set(healthcheck_results.keys())
+            - set([x.lower() for x in services_up])
+        ]
         logger(
             red(
                 "* You have some services running locally (Up: {}. Down: {}).".format(
@@ -309,25 +410,40 @@ def _setup_bootstrap_repositories(logger: Callable, config: dict, settings: dict
     logger(bold("Bootstrapping repositories ..."))
 
     try:
-        nested_repositories = group_by_key(settings["repositories"], "run-order", include_missing=True)
+        nested_repositories = group_by_key(
+            settings["repositories"], "run-order", include_missing=True
+        )
         for repo_name in itertools.chain.from_iterable(nested_repositories):
             if "bootstrap" in settings["repositories"][repo_name]:
                 app_info = get_app_info(repo_name, config, settings, {})
 
-                logger(green("* Starting bootstrap of") + " " + app_info["name"] + " ...", log_name="setup")
+                logger(
+                    green("* Starting bootstrap of") + " " + app_info["name"] + " ...",
+                    log_name="setup",
+                )
 
                 bootstrap_command = settings["repositories"][repo_name]["bootstrap"]
-                exitcode = DMProcess(app=app_info, logger=logger, app_command=bootstrap_command).wait()
+                exitcode = DMProcess(
+                    app=app_info, logger=logger, app_command=bootstrap_command
+                ).wait()
 
                 if exitcode:
                     logger(
-                        red("* Bootstrap failed for ") + app_info["name"] + red(" with exit code {}").format(exitcode)
+                        red("* Bootstrap failed for ")
+                        + app_info["name"]
+                        + red(" with exit code {}").format(exitcode)
                     )
                     exitcode = EXITCODE_BOOTSTRAP_FAILED
                     break
 
                 else:
-                    logger(green("* Bootstrap completed for") + " " + app_info["name"] + " ", log_name="setup")
+                    logger(
+                        green("* Bootstrap completed for")
+                        + " "
+                        + app_info["name"]
+                        + " ",
+                        log_name="setup",
+                    )
 
     except KeyboardInterrupt:
         exitcode = EXITCODE_SETUP_ABORT
@@ -345,7 +461,14 @@ def _setup_indices(logger: Callable, config: dict, settings: dict):
     for dependency in settings["index"]["dependencies"]:
         dependency_app_info = get_app_info(dependency, config, settings, manager.dict())
         dependencies.append(
-            (DMProcess(app=dependency_app_info, logger=nologger, app_command=APP_COMMAND_RESTART), dependency_app_info)
+            (
+                DMProcess(
+                    app=dependency_app_info,
+                    logger=nologger,
+                    app_command=APP_COMMAND_RESTART,
+                ),
+                dependency_app_info,
+            )
         )
 
     time.sleep(10)
@@ -353,20 +476,31 @@ def _setup_indices(logger: Callable, config: dict, settings: dict):
     for index in settings["index"]["indices"]:
         index_name = index["keyword"]["index"]
 
-        app_info = get_app_info(settings["index"]["repository"], config, settings, manager.dict())
+        app_info = get_app_info(
+            settings["index"]["repository"], config, settings, manager.dict()
+        )
         try:
-            assert requests.get(settings["index"]["test"].format(index=index_name)).status_code == 200
+            assert (
+                requests.get(
+                    settings["index"]["test"].format(index=index_name)
+                ).status_code
+                == 200
+            )
 
         except Exception:
             index_command = "{command} {keyword} {positional}".format(
                 command=settings["index"]["command"],
-                keyword=" ".join(["--{k}={v}".format(k=k, v=v) for k, v in index["keyword"].items()]),
+                keyword=" ".join(
+                    ["--{k}={v}".format(k=k, v=v) for k, v in index["keyword"].items()]
+                ),
                 positional=" ".join(index["positional"]),
             )
 
             logger("* Creating index '{}' ...".format(index_name))
 
-            exitcode = DMProcess(app=app_info, logger=logger, app_command=index_command).wait()
+            exitcode = DMProcess(
+                app=app_info, logger=logger, app_command=index_command
+            ).wait()
             if exitcode:
                 logger(
                     red(
@@ -399,7 +533,9 @@ def _setup_indices(logger: Callable, config: dict, settings: dict):
     return exitcode
 
 
-def setup_and_check_requirements(logger: Callable, config: dict, config_path: str, settings: Dict, command: str):
+def setup_and_check_requirements(
+    logger: Callable, config: dict, config_path: str, settings: Dict, command: str
+):
     """This runs some basic checks to ensure that the User has everything required for DMRunner to function
     correctly, eg their own config file, Docker (and possibly Nix in the future), docker images, checked-out code.
     """
@@ -423,20 +559,34 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
         if only_setup_data:
             logger(bold("Starting data setup ..."))
             logger(
-                red("WARNING: ") + "This will delete " + bold("ALL") + " of your existing database and elasticsearch"
+                red("WARNING: ")
+                + "This will delete "
+                + bold("ALL")
+                + " of your existing database and elasticsearch"
                 " data, then re-populate it."
             )
 
-            if get_yes_no_input(logger, "Are you sure you want to proceed?", default="n") != "y":
+            if (
+                get_yes_no_input(
+                    logger, "Are you sure you want to proceed?", default="n"
+                )
+                != "y"
+            ):
                 exitcode = EXITCODE_SETUP_ABORT
 
             else:
                 exitcode, use_docker_services = (
-                    _setup_check_background_services(logger) if not exitcode else (exitcode, False)
+                    _setup_check_background_services(logger)
+                    if not exitcode
+                    else (exitcode, False)
                 )
 
                 if not use_docker_services:
-                    logger(bold("Cannot run a data setup if you are managing your own backing services. Sorry!"))
+                    logger(
+                        bold(
+                            "Cannot run a data setup if you are managing your own backing services. Sorry!"
+                        )
+                    )
                     exitcode = EXITCODE_SETUP_ABORT
 
                 exitcode = exitcode or _setup_check_postgres_data_if_required(
@@ -444,7 +594,11 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
                 )
 
                 with (
-                    background_services(logger, docker_compose_folder=settings["docker-compose-path"], clean=True)
+                    background_services(
+                        logger,
+                        docker_compose_folder=settings["docker-compose-path"],
+                        clean=True,
+                    )
                     if use_docker_services and not exitcode
                     else blank_context()
                 ):
@@ -463,16 +617,24 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
             exitcode = exitcode or _setup_download_repos(logger, config, settings)
 
             exitcode, use_docker_services = (
-                _setup_check_background_services(logger) if not exitcode else (exitcode, False)
+                _setup_check_background_services(logger)
+                if not exitcode
+                else (exitcode, False)
             )
-            exitcode = exitcode or _setup_check_postgres_data_if_required(logger, settings, use_docker_services)
+            exitcode = exitcode or _setup_check_postgres_data_if_required(
+                logger, settings, use_docker_services
+            )
 
             with (
-                background_services(logger, docker_compose_folder=settings["docker-compose-path"])
+                background_services(
+                    logger, docker_compose_folder=settings["docker-compose-path"]
+                )
                 if use_docker_services and not exitcode
                 else blank_context()
             ):
-                exitcode = exitcode or _setup_bootstrap_repositories(logger, config, settings)
+                exitcode = exitcode or _setup_bootstrap_repositories(
+                    logger, config, settings
+                )
                 exitcode = exitcode or _setup_indices(logger, config, settings)
 
         except BaseException:
@@ -481,7 +643,9 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
     if exitcode:
         if only_check_services:
             if exitcode == EXITCODE_CONFIG_NO_EXIST:
-                logger(red("Configuration file not found. Run `make setup` to generate."))
+                logger(
+                    red("Configuration file not found. Run `make setup` to generate.")
+                )
 
             else:
                 logger(red("Startup failed with exitcode: {}".format(exitcode)))

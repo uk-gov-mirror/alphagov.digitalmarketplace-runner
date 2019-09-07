@@ -1,16 +1,16 @@
 version: '3.5'
 
 networks:
-  dmrunner:
+  default:
     driver: bridge
 
 services:
   elasticsearch:
     networks:
-      - dmrunner
+      - default
   postgres:
     networks:
-      - dmrunner
+      - default
   nginx:
     networks:
-      - dmrunner
+      - default
