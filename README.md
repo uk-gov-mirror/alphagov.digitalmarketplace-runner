@@ -139,3 +139,8 @@ doesn't seem to support this).
 * Add Nix detection to setup and, by default, run apps using Nix to avoid local requirements on node/npm/bower/etc.
 * Allow use of frontend-build:watch to continually rebuild assets
 * Need to install postgresql locally (api requires pg_config) even if using docker (this is a digitalmarketplace-api dependency, not a dmrunner dependency, but you're likely to come across it using this).
+
+## Credits 🏆
+
+This project was created by ex-GDSer @samuelhwilliams as a side-project, and is
+now maintained by the Digital Marketplace team until he comes back 😝
