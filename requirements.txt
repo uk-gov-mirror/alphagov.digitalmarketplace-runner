@@ -3,7 +3,7 @@ ansiwrap==0.8.4
 black==19.3b0
 colored==1.4.0
 configobj==5.0.6
-docker==4.0.2
+docker==4.1.0
 mypy==0.730
 pexpect==4.7.0
 prettytable==0.7.2  # pyup: ignore
