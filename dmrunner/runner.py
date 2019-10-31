@@ -654,7 +654,9 @@ fe / frontend - Run `make frontend-build` against specified apps*
         if not self._dmservices:
             return
 
-        healthcheck_result, service_results = self._dmservices.services_healthcheck(self._shutdown, check_once=True)
+        healthcheck_result, service_results = self._dmservices.services_healthcheck(
+            self._shutdown, self.logger, check_once=True
+        )
 
         if self._use_docker_services and healthcheck_result is True:
             self.print_out("Stopping background services...")

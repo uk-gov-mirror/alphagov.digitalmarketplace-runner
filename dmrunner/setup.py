@@ -247,7 +247,9 @@ def _setup_check_background_services(logger):
     use_docker_services = False
 
     logger(bold("Checking for existing background services..."))
-    healthcheck_passed, healthcheck_results = DMServices.services_healthcheck(threading.Event(), check_once=True)
+    healthcheck_passed, healthcheck_results = DMServices.services_healthcheck(
+        threading.Event(), logger, check_once=True
+    )
     first_result = next(iter(healthcheck_results.values()))  # Used to ensure all results are identical
 
     if not healthcheck_passed and not all(map(lambda x: x is first_result, healthcheck_results.values())):

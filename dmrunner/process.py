@@ -90,7 +90,7 @@ class DMServices(DMExecutable):
         return subprocess.call(cls._get_docker_compose_command(docker_compose_filepaths, "build"))
 
     @staticmethod
-    def services_healthcheck(shutdown_event, check_once=False):
+    def services_healthcheck(shutdown_event, logger, check_once=False):
         """Attempts to validate that required background services (NGINX, Elasticsearch, Postgres) are all
         operational. It takes some shortcuts in doing so, but should be effective in most cases."""
         healthcheck_result = {"nginx": False, "elasticsearch": False, "postgres": False}
@@ -188,7 +188,7 @@ class DMServices(DMExecutable):
 
     def blocking_healthcheck(self, shutdown_event):
         self._thread_healthcheck = threading.Thread(
-            target=self.services_healthcheck, args=(shutdown_event,), name="Thread-Services-HC"
+            target=self.services_healthcheck, args=(shutdown_event, self._logger), name="Thread-Services-HC"
         )
         self._thread_healthcheck.start()
 
