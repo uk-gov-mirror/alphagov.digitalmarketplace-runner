@@ -18,7 +18,7 @@ import threading
 import time
 from typing import List, Optional, Sequence, Union
 
-from .utils import PROCESS_TERMINATED, PROCESS_NOEXIST, EXITCODE_NOT_ANTICIPATED_EXECUTION, bold
+from .utils import PROCESS_TERMINATED, PROCESS_NOEXIST, EXITCODE_NOT_ANTICIPATED_EXECUTION, bold, red
 
 
 Path = Union[os.PathLike, str]
@@ -124,8 +124,20 @@ class DMServices(DMExecutable):
                     ).close()
                     healthcheck_result["postgres"] = True
 
-                except psycopg2.OperationalError:
-                    healthcheck_result["postgres"] = False
+                except psycopg2.OperationalError as e:
+                    pgerror = str(e).strip()
+                    if pgerror.startswith("could not connect to server"):
+                        healthcheck_result["postgres"] = False
+                    else:
+                        logger("Making a connection to Postgres failed with an unexpected error")
+                        logger(red(f"\t{pgerror}"), "postgres")
+                        logger("Please make sure that your local Postgres instance is set-up correctly")
+                        logger("and that you are not running a local Postgres server without realising it!")
+
+                        # abort
+                        if check_once:
+                            healthcheck_result["postgres"] = True
+                        shutdown_event.set()
 
                 if all(healthcheck_result.values()):
                     break
