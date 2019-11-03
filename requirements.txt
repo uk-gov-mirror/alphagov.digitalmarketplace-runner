@@ -1,6 +1,6 @@
 ansicolor==0.2.6
 ansiwrap==0.8.4
-black==19.3b0
+black==19.10b0
 colored==1.4.0
 configobj==5.0.6
 docker==4.1.0
