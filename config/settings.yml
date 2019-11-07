@@ -35,7 +35,7 @@ repositories:
     bootstrap: make requirements-dev
     run-order: 1
     healthcheck:
-      port: 5001
+      port: 5009
       endpoint: /_status
     commands:
       run: make run-app
