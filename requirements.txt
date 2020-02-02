@@ -7,7 +7,7 @@ docker==4.1.0
 mypy==0.761
 pexpect==4.8.0
 prettytable==0.7.2  # pyup: ignore
-psutil==5.6.3
+psutil==5.6.7
 psycopg2-binary==2.8.4
 pyflakes==2.1.1
 PyYAML==5.1.2
