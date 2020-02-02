@@ -5,7 +5,7 @@ colored==1.4.2
 configobj==5.0.6
 docker==4.1.0
 mypy==0.761
-pexpect==4.7.0
+pexpect==4.8.0
 prettytable==0.7.2  # pyup: ignore
 psutil==5.6.3
 psycopg2-binary==2.8.4
