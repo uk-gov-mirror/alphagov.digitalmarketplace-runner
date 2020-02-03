@@ -1,16 +1,16 @@
 ansicolor==0.2.6
 ansiwrap==0.8.4
 black==19.10b0
-colored==1.4.0
+colored==1.4.2
 configobj==5.0.6
 docker==4.1.0
-mypy==0.740
-pexpect==4.7.0
+mypy==0.761
+pexpect==4.8.0
 prettytable==0.7.2  # pyup: ignore
-psutil==5.6.3
+psutil==5.6.7
 psycopg2-binary==2.8.4
 pyflakes==2.1.1
-PyYAML==5.1.2
+PyYAML==5.3
 readline==6.2.4.1
 requests==2.22.0
-ruamel.yaml==0.16.5
+ruamel.yaml==0.16.7
