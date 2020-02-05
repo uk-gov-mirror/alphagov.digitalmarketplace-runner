@@ -12,7 +12,7 @@ import pathlib
 import prettytable
 import psutil
 import re
-import readline
+import gnureadline as readline  # type: ignore
 import requests
 import shutil
 import signal
