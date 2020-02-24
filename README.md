@@ -124,7 +124,7 @@ lists (for example), the URLs for each of the apps, which apps there are to run 
 what frameworks need to be indexed for search, etc.
 
 ## Troubleshooting
-* Troubleshooting tips to go here...
+Check if your issue is listed under https://github.com/alphagov/digitalmarketplace-runner/issues.
 
 ## Code formatting
 This repository uses the opinionated Python code formatter `black` to keep the code consistently styled. Git hooks are
