@@ -25,7 +25,7 @@ You must have the following tools available in order to successfully use the DM 
   clearance and AWS access):
   * You have a checkout of `digitalmarketplace-credentials` and export the
     `DM_CREDENTIALS_REPO` environment variable with the path to your local
-    checkout. `DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow
+    checkout. `$DM_CREDENTIALS_REPO/sops-wrapper` must be functional (follow
     instructions in README).
   * After running setup, edit the `config.yml` file and change the value of
     `credentials->sops` to `on`.
