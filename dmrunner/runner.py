@@ -189,7 +189,10 @@ fe / frontend - Run `make frontend-build` against specified apps*
                 "aws configure get aws_secret_access_key".split(), universal_newlines=True
             )
 
-            self.print_out("Decrypting credentials for injection into app processes ...")
+            self.print_out(
+                "Decrypting credentials for injection into app processes "
+                "(requires corporate network or VPN connection) ..."
+            )
             all_creds = yaml.safe_load(
                 subprocess.check_output(
                     f"{path_to_credentials}/sops-wrapper " f"-d {path_to_credentials}/vars/preview.yaml".split(),
