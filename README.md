@@ -15,6 +15,7 @@ Running against other OSs may require some care and consideration.
 * Python 3, including headers if appropriate (consider using [pyenv]),
   installed with `pip` and `virtualenv` packages.
   * macOS/Homebrew users can install with `brew install pyenv && pyenv shell 3.6.8`
+  * Add a line to your `.bash_profile` to source the `Brewfile.env` (see below)
 * Node ^v10.15.0 (consider using [Node Version Manager]) and NPM 6+ installed
   and available in your path.
   * If you have NVM the command `nvm install && nvm use` will install and
@@ -33,9 +34,16 @@ Running against other OSs may require some care and consideration.
   * After running setup, edit the `config.yml` file and change the value of
     `credentials->sops` to `on`.
 
+### Install using Brewfile
+
 macOS/[Homebrew] users can run `make brew` to install all these prerequisites.
 
-It will also suggest you source the file `Brewfile.env` into your environment.
+`make brew` will also suggest you source the file `Brewfile.env` into your environment:
+
+```
+[ -s "$HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env" ] && source $HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env
+```
+
 This will make sure that the correct Python and Node versions are in your path, and that the
 correct version of Postgres is available for use with the
 [digitalmarketplace-api](https://github.com/alphagov/digitalmarketplace-api) repo.
