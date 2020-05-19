@@ -1,17 +1,21 @@
-# EXPERIMENTAL/UNDER DEVELOPMENT/IN NEED OF LOVE
+# Digital Marketplace Runner ('DMRunner')
 
-## Digital Marketplace Runner
-A utility to run your API/frontend repositories together (and backing services if required), while allowing you to
-interact with the running processes and their logs. This script is primarily compatible with macOS and Ubuntu 16.04;
-running against other OSs may require some care and consideration. At its simplest, as an existing developer, you should
-be able to clone this repo, run `make setup` and follow the instructions, then just run `make` to bring up all your
-checked out apps.
+** EXPERIMENTAL / UNDER DEVELOPMENT / IN NEED OF LOVE **
+
+A local development environment for running Digital Marketplace applications and backing services.
+
+DMRunner also provides an interactive shell to manage processes and their logs.
 
 ## Requirements
-You must have the following tools available in order to successfully use the DM Runner:
+
+DMRunner is compatible with macOS and Ubuntu 16.04.
+
+Running against other OSs may require some care and consideration.
 
 * Python 3, including headers if appropriate (consider using [pyenv]),
   installed with `pip` and `virtualenv` packages.
+  * macOS/Homebrew users can install with `brew install pyenv && pyenv shell 3.6.8`
+  * Add a line to your `.bash_profile` to source the `Brewfile.env` (see below)
 * Node ^v10.15.0 (consider using [Node Version Manager]) and NPM 6+ installed
   and available in your path.
   * If you have NVM the command `nvm install && nvm use` will install and
@@ -30,12 +34,19 @@ You must have the following tools available in order to successfully use the DM 
   * After running setup, edit the `config.yml` file and change the value of
     `credentials->sops` to `on`.
 
-If you are running macOS and have [Homebrew] installed then you can run `make
-brew` to install all these prerequisites. It will also suggest you source the
-file `Brewfile.env` into your environment; this will make sure that the correct
-Python and Node versions are in your path, and also ensure that you have the
-correct version of Postgres available to compile the digitalmarketplace-api
-repo against.
+### Install using Brewfile
+
+macOS/[Homebrew] users can run `make brew` to install all these prerequisites.
+
+`make brew` will also suggest you source the file `Brewfile.env` into your environment:
+
+```
+[ -s "$HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env" ] && source "$HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env"
+```
+
+This will make sure that the correct Python and Node versions are in your path, and that the
+correct version of Postgres is available for use with the
+[digitalmarketplace-api](https://github.com/alphagov/digitalmarketplace-api) repo.
 
 [Homebrew]: https://brew.sh
 [Node Version Manager]: https://github.com/nvm-sh/nvm
@@ -43,7 +54,7 @@ repo against.
 [Docker]: https://docs.docker.com/install/
 
 ## Instructions
-1. Ensure your environment meets the requirements.
+1. Ensure your environment meets the requirements above.
 2. Clone this repository into an empty directory (e.g. `~/gds`, `~/dm`, or whatever), so that you have something like
 `~/gds/dmrunner`.
 3. Run `make setup` - follow instructions.
@@ -125,6 +136,22 @@ what frameworks need to be indexed for search, etc.
 
 ## Troubleshooting
 Check if your issue is listed under https://github.com/alphagov/digitalmarketplace-runner/issues.
+
+### Docker backing services
+On startup, if DMRunner says a backing service already exists, you can list the DMRunner Docker containers (and their
+ports, if running) with:
+
+```bash
+$ docker ps -a | grep dmrunner
+```
+
+You can remove stale DMRunner backing service containers with:
+
+```bash
+$ docker rm dmrunner_postgres_1
+$ docker rm dmrunner_elasticsearch_1
+$ docker rm dmrunner_nginx_1
+```
 
 ## Code formatting
 This repository uses the opinionated Python code formatter `black` to keep the code consistently styled. Git hooks are
