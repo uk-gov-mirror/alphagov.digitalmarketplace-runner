@@ -41,7 +41,7 @@ macOS/[Homebrew] users can run `make brew` to install all these prerequisites.
 `make brew` will also suggest you source the file `Brewfile.env` into your environment:
 
 ```
-[ -s "$HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env" ] && source $HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env
+[ -s "$HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env" ] && source "$HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env"
 ```
 
 This will make sure that the correct Python and Node versions are in your path, and that the
