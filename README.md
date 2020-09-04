@@ -153,6 +153,16 @@ $ docker rm dmrunner_elasticsearch_1
 $ docker rm dmrunner_nginx_1
 ```
 
+If you're on Linux and using rootless Docker, you will need to run nginx yourself. nginx needs host networking, which is not compatible with rootless Docker.
+
+### Elastic search
+
+If the elasticsearch bootstrap fails, you might need to [increase the maximum memory count check](https://www.elastic.co/guide/en/elasticsearch/reference/master/_maximum_map_count_check.html).
+
+### Postgres
+
+If you have a postgres service running, this can prevent you accessing the postgres docker container. To check for a postgres service, run `sudo service postgresql status`.
+
 ## Code formatting
 This repository uses the opinionated Python code formatter `black` to keep the code consistently styled. Git hooks are
 provided for this repository to seamlessly check and re-style your code as needed. Run `./install_hooks.sh` to install
