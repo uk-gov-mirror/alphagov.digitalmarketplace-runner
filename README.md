@@ -155,7 +155,7 @@ $ docker rm dmrunner_nginx_1
 
 If you're on Linux and using rootless Docker, you will need to run nginx yourself. nginx needs host networking, which is not compatible with rootless Docker.
 
-### Elastic search
+### Elasticsearch
 
 If the elasticsearch bootstrap fails, you might need to [increase the maximum memory count check](https://www.elastic.co/guide/en/elasticsearch/reference/master/_maximum_map_count_check.html).
 
