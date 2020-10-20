@@ -101,7 +101,8 @@ class DMServices(DMExecutable):
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 try:
                     s.connect(("localhost", 80))
-                    healthcheck_result["nginx"] = True
+                    if 'nginx' in healthcheck_result:
+                        del healthcheck_result["nginx"]
 
                 except ConnectionError:
                     healthcheck_result["nginx"] = False
