@@ -12,3 +12,6 @@ services:
 
   s3:
     network_mode: host
+    
+  redis:
+    network_mode: host
