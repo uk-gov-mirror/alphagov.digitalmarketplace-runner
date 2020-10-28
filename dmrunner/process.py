@@ -265,11 +265,11 @@ class DMProcess(DMExecutable):
     def _get_clean_env(self):
         clean_env = {"PYTHONUNBUFFERED": "1", "PATH": os.environ["PATH"], "LANG": os.environ["LANG"]}
 
+        aws_env = {key: value for key, value in os.environ.items() if key.startswith("AWS_")}
+        dm_env = {key: value for key, value in os.environ.items() if key.startswith("DM_")}
         pyenv_env = {key: value for key, value in os.environ.items() if key.startswith("PYENV_")}
 
-        dm_env = {key: value for key, value in os.environ.items() if key.startswith("DM_")}
-
-        return {**clean_env, **dm_env, **pyenv_env}
+        return {**clean_env, **aws_env, **dm_env, **pyenv_env}
 
     def _get_command(self, app_command):
         return self._app["commands"][app_command] if app_command in self._app["commands"] else app_command
