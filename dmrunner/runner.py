@@ -103,6 +103,14 @@ fe / frontend - Run `make frontend-build` against specified apps*
         with open(self._settings_path) as settings_file:
             self.settings: dict = yaml.safe_load(settings_file.read())
 
+        # load environment variables from settings file,
+        # taking care not to override existing envvars
+        if self.settings.get("environment"):
+            for key, value in self.settings["environment"].items():
+                if key not in os.environ:
+                    self.logger(f"setting environment variable {key}")
+                    os.environ[key] = value
+
         self._main_log_name = "setup"
         # Handles initialization of external state required to run this correctly (repos, docker images, config, etc).
         exitcode, self._use_docker_services, self.config = setup_and_check_requirements(
