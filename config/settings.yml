@@ -14,6 +14,11 @@ server: localhost
 data-dump-url: https://s3.console.aws.amazon.com/s3/buckets/digitalmarketplace-cleaned-db-dumps
 sql-data-path: config/sql/data
 
+environment:
+  AWS_ACCESS_KEY_ID: test
+  AWS_SECRET_ACCESS_KEY: test
+  DM_S3_ENDPOINT_PORT: 4566
+
 # Details repositories to be downloaded, bootstrapped, and executed.
 repositories:
   # Core repositories to download and run.

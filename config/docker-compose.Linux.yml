@@ -9,3 +9,6 @@ services:
 
   postgres:
     network_mode: host
+
+  s3:
+    network_mode: host

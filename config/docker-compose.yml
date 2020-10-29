@@ -3,6 +3,7 @@ version: '3.5'
 volumes:
   postgres-data:
   elasticsearch-data:
+  s3-data:
 
 services:
   postgres:
@@ -30,3 +31,16 @@ services:
       - "80:80"
     volumes:
       - "./dmrunner-nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+
+  s3:
+    image: "localstack/localstack@sha256:cb08eabae40fa1e33babffa4ff8c454c2276405cfc2fe1e2e300e5625244bdf7"
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      - SERVICES=s3
+      - DATA_DIR=/tmp/localstack
+      - DEFAULT_REGION=eu-west-1
+    volumes:
+      - "s3-data:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"

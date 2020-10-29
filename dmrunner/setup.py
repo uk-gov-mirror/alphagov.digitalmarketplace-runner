@@ -2,6 +2,7 @@
 Contains all the logic and process involved in validating that a user has a suitable local environment for running
 the Digital Marketplace (eg git, Docker, checked-out code, etc)
 """
+import boto3  # type: ignore
 from distutils.version import LooseVersion
 import docker
 import errno
@@ -443,6 +444,31 @@ def _setup_indices(logger: Callable, config: dict, settings: dict):
     return exitcode
 
 
+def _setup_buckets(logger: Callable, config: dict, settings: dict):
+    exitcode = 0
+
+    if not os.getenv("DM_S3_ENDPOINT_PORT"):
+        logger("* Skipping s3 setup as envvar DM_S3_ENDPOINT_PORT is empty")
+        return exitcode
+
+    logger(bold("Bootstrapping localstack s3 buckets..."))
+
+    s3_region = "eu-west-1"
+    s3_endpoint_url = f"http://localhost:{os.environ['DM_S3_ENDPOINT_PORT']}"
+    s3 = boto3.resource("s3", region_name=s3_region, endpoint_url=s3_endpoint_url)
+    try:
+        s3.create_bucket(
+            Bucket="digitalmarketplace-dev-uploads", CreateBucketConfiguration={"LocationConstraint": s3_region}
+        )
+    except s3.meta.client.exceptions.BucketAlreadyExists:
+        pass
+    except Exception as e:
+        logger(red(f"* Could not create bucket digitalmarketplace-dev-uploads: {e}"))
+        exitcode = 1
+
+    return exitcode
+
+
 def setup_and_check_requirements(logger: Callable, config: dict, config_path: str, settings: Dict, command: str):
     """This runs some basic checks to ensure that the User has everything required for DMRunner to function
     correctly, eg their own config file, Docker (and possibly Nix in the future), docker images, checked-out code.
@@ -493,6 +519,7 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
                     else blank_context()
                 ):
                     exitcode = exitcode or _setup_indices(logger, config, settings)
+                    exitcode = exitcode or _setup_buckets(logger, config, settings)
 
     else:
         logger(bold("Starting setup ..."))
@@ -517,6 +544,7 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
             ):
                 exitcode = exitcode or _setup_bootstrap_repositories(logger, config, settings)
                 exitcode = exitcode or _setup_indices(logger, config, settings)
+                exitcode = exitcode or _setup_buckets(logger, config, settings)
 
         except BaseException:
             exitcode = EXITCODE_SETUP_ABORT

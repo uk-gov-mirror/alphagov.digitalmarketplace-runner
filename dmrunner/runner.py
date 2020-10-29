@@ -103,6 +103,14 @@ fe / frontend - Run `make frontend-build` against specified apps*
         with open(self._settings_path) as settings_file:
             self.settings: dict = yaml.safe_load(settings_file.read())
 
+        # load environment variables from settings file,
+        # taking care not to override existing envvars
+        if self.settings.get("environment"):
+            for key, value in self.settings["environment"].items():
+                if key not in os.environ:
+                    self.logger(f"setting environment variable {key}")
+                    os.environ[key] = value
+
         self._main_log_name = "setup"
         # Handles initialization of external state required to run this correctly (repos, docker images, config, etc).
         exitcode, self._use_docker_services, self.config = setup_and_check_requirements(
@@ -182,12 +190,17 @@ fe / frontend - Run `make frontend-build` against specified apps*
                 self.shutdown()
                 sys.exit(1)
 
-            aws_access_key_id = subprocess.check_output(
-                "aws configure get aws_access_key_id".split(), universal_newlines=True
-            )
-            aws_secret_access_key = subprocess.check_output(
-                "aws configure get aws_secret_access_key".split(), universal_newlines=True
-            )
+            if not os.getenv("AWS_ACCESS_KEY_ID"):
+                aws_access_key_id = subprocess.check_output(
+                    "aws configure get aws_access_key_id".split(), universal_newlines=True
+                )
+                os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id.strip()
+
+            if not os.getenv("AWS_SECRET_ACCESS_KEY"):
+                aws_secret_access_key = subprocess.check_output(
+                    "aws configure get aws_secret_access_key".split(), universal_newlines=True
+                )
+                os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_access_key.strip()
 
             self.print_out(
                 "Decrypting credentials for injection into app processes "
@@ -197,14 +210,13 @@ fe / frontend - Run `make frontend-build` against specified apps*
                 subprocess.check_output(
                     f"{path_to_credentials}/sops-wrapper " f"-d {path_to_credentials}/vars/preview.yaml".split(),
                     universal_newlines=True,
+                    env={"DM_CREDENTIALS_REPO": path_to_credentials, "PATH": os.environ["PATH"]},
                 )
             )
 
             mandrill_key = all_creds["shared_tokens"]["mandrill_key"]
             notify_key = all_creds["notify_api_key"]
 
-            os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id.strip()
-            os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_access_key.strip()
             os.environ["DM_MANDRILL_API_KEY"] = mandrill_key.strip()
             os.environ["DM_NOTIFY_API_KEY"] = notify_key.strip()
 
