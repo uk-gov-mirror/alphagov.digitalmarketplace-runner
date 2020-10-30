@@ -109,7 +109,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
             for key, value in self.settings["environment"].items():
                 if key not in os.environ:
                     self.logger(f"setting environment variable {key}")
-                    os.environ[key] = value
+                    os.environ[key] = str(value)
 
         self._main_log_name = "setup"
         # Handles initialization of external state required to run this correctly (repos, docker images, config, etc).
@@ -396,8 +396,8 @@ fe / frontend - Run `make frontend-build` against specified apps*
         colored_app_name = re.sub(app_name, self._stylize(app_name, **log_styling.get(app_name, {})), padded_app_name)
 
         for line in text.split("\n"):
-            datetime_prefixed_log_pattern = r"^(?:\) )?\d{{4}}-\d{{2}}-\d{{2}}[\sT]\d{{2}}:\d{{2}}:\d{{2}}(?:,\d{{3}})?\s{}\s".format(
-                app_name
+            datetime_prefixed_log_pattern = (
+                r"^(?:\) )?\d{{4}}-\d{{2}}-\d{{2}}[\sT]\d{{2}}:\d{{2}}:\d{{2}}(?:,\d{{3}})?\s{}\s".format(app_name)
             )
 
             if re.match(datetime_prefixed_log_pattern, line):
