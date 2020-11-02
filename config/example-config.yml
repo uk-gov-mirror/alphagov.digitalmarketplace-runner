@@ -64,6 +64,10 @@ styling:
     dm-elasticsearch:
       fg: white
       attr: bold
+    
+    dm-redis:
+      fg: white
+      attr: bold
 
     api:
       fg: blue

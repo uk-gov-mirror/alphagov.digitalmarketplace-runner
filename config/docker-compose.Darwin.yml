@@ -17,3 +17,6 @@ services:
   s3:
     networks:
       - dmrunner
+  redis:
+    networks:
+      - dmrunner
