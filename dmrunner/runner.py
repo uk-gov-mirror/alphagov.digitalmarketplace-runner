@@ -219,6 +219,7 @@ fe / frontend - Run `make frontend-build` against specified apps*
 
             os.environ["DM_MANDRILL_API_KEY"] = mandrill_key.strip()
             os.environ["DM_NOTIFY_API_KEY"] = notify_key.strip()
+            os.environ["SESSION_TYPE"] = 'redis'
 
     def _get_input_and_pipe_to_target(self) -> None:
         """Receives input from the user. Directs it to the appropriate channel, whether that be the DMRunner command
