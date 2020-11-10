@@ -18,6 +18,7 @@ environment:
   AWS_ACCESS_KEY_ID: test
   AWS_SECRET_ACCESS_KEY: test
   DM_S3_ENDPOINT_PORT: 4566
+  DM_USE_REDIS_SESSION_TYPE: true
 
 # Details repositories to be downloaded, bootstrapped, and executed.
 repositories:
