@@ -6,6 +6,7 @@ export PATH := $(VIRTUALENV_ROOT)/bin:$(PATH)
 
 PWD_PRETTY := $(subst $(HOME),$$HOME,$(shell pwd))
 
+export COMPOSE_FILE := config/docker-compose.yml:config/docker-compose.$(shell uname).yml
 export COMPOSE_PROJECT_NAME := dmrunner
 
 MAIN_PY := python main.py
@@ -106,3 +107,12 @@ test-pyflakes: install
 
 .PHONY: test
 test: test-black test-mypy test-pyflakes
+
+
+# Export docker-compose using dmrunner files and project name.
+# Saves having to remember to type them out yourself.
+# Use with `eval "$(make docker-compose-env)"`
+.PHONY: docker-compose-env
+docker-compose-env:
+	export COMPOSE_FILE='$(COMPOSE_FILE)'
+	export COMPOSE_PROJECT_NAME='$(COMPOSE_PROJECT_NAME)'
