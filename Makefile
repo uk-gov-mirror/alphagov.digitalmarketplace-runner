@@ -2,9 +2,13 @@ SHELL := /bin/bash
 VIRTUALENV_ROOT := $(shell [ -z $$VIRTUAL_ENV ] && echo $$(pwd)/venv || echo $$VIRTUAL_ENV)
 .DEFAULT_GOAL := run
 
+export PATH := $(VIRTUALENV_ROOT)/bin:$(PATH)
+
 PWD_PRETTY := $(subst $(HOME),$$HOME,$(shell pwd))
 
 export COMPOSE_PROJECT_NAME := dmrunner
+
+MAIN_PY := python main.py
 
 .PHONY: brew
 brew:
@@ -54,51 +58,51 @@ virtualenv:
 
 .PHONY: install
 install: virtualenv
-	${VIRTUALENV_ROOT}/bin/pip install -r requirements.txt
+	pip install -r requirements.txt
 
 .PHOHY: config
 config: install
-	${VIRTUALENV_ROOT}/bin/python main.py config
+	$(MAIN_PY) config
 
 .PHOHY: setup
 setup: install
-	${VIRTUALENV_ROOT}/bin/python main.py ${ARGS} setup
+	$(MAIN_PY) ${ARGS} setup
 
 .PHOHY: data
 data: install
-	${VIRTUALENV_ROOT}/bin/python main.py ${ARGS} data
+	$(MAIN_PY) ${ARGS} data
 
 .PHONY: run
 run: virtualenv
-	${VIRTUALENV_ROOT}/bin/python main.py ${ARGS} run
+	$(MAIN_PY) ${ARGS} run
 
 .PHONY: rebuild
 rebuild: virtualenv
-	${VIRTUALENV_ROOT}/bin/python main.py --rebuild ${ARGS} run
+	$(MAIN_PY) --rebuild ${ARGS} run
 
 .PHONY: nix
 nix: virtualenv
-	${VIRTUALENV_ROOT}/bin/python main.py --nix ${ARGS} run
+	$(MAIN_PY) --nix ${ARGS} run
 
 .PHONY: nix-rebuild
 nix-rebuild: virtualenv
-	${VIRTUALENV_ROOT}/bin/python main.py --nix --rebuild ${ARGS} run
+	$(MAIN_PY) --nix --rebuild ${ARGS} run
 
 .PHONY: black
 black: install
-	${VIRTUALENV_ROOT}/bin/black config/ dmrunner/ main.py setup.py
+	$(MAIN_PY) dmrunner/ main.py setup.py
 
 .PHONY: test-black
 test-black: install
-	${VIRTUALENV_ROOT}/bin/black --check config/ dmrunner/ main.py setup.py
+	black --check config/ dmrunner/ main.py setup.py
 
 .PHONY: test-mypy
 test-mypy: install
-	${VIRTUALENV_ROOT}/bin/mypy dmrunner/ main.py setup.py
+	mypy dmrunner/ main.py setup.py
 
 .PHONY: test-pyflakes
 test-pyflakes: install
-	${VIRTUALENV_ROOT}/bin/pyflakes config/ dmrunner/ main.py setup.py
+	pyflakes config/ dmrunner/ main.py setup.py
 
 .PHONY: test
 test: test-black test-mypy test-pyflakes
