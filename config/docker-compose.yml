@@ -8,7 +8,7 @@ volumes:
 
 services:
   postgres:
-    image: "postgres@sha256:f4603c7b8aaf418393edb8cd5e2d1abd91d686ab571302dc83f887ea4a56286b"
+    image: "postgres:10.15@sha256:95f79893ef4d769277f7687b03bb24fe77a49ad2ec1c269f89a0cf849d6f4c7b"                                                                   
     ports:
       - "5432:5432"
     volumes:
@@ -16,6 +16,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: $USER
+      POSTGRES_HOST_AUTH_METHOD: trust
 
   elasticsearch:
     image: "elasticsearch:7.9.3"
