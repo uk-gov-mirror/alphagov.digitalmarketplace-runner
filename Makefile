@@ -108,6 +108,10 @@ test-pyflakes: install
 .PHONY: test
 test: test-black test-mypy test-pyflakes
 
+.PHONY: update-code
+update-code:
+	invoke update-code
+
 
 # Export docker-compose using dmrunner files and project name.
 # Saves having to remember to type them out yourself.
