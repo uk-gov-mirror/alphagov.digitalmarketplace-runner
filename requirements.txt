@@ -10,7 +10,7 @@ invoke==1.5.0
 mypy==0.790
 pexpect==4.8.0
 prettytable==0.7.2  # pyup: ignore
-psutil==5.7.0
+psutil==5.8.0
 psycopg2-binary==2.8.6
 pyflakes==2.2.0
 PyYAML==5.3.1
