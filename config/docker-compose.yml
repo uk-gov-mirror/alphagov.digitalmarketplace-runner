@@ -8,7 +8,7 @@ volumes:
 
 services:
   postgres:
-    image: "postgres:10.15@sha256:95f79893ef4d769277f7687b03bb24fe77a49ad2ec1c269f89a0cf849d6f4c7b"                                                                   
+    image: "postgres:12"
     ports:
       - "5432:5432"
     volumes:
