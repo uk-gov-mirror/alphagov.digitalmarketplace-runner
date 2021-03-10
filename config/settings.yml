@@ -25,109 +25,109 @@ repositories:
   digitalmarketplace-api:
     name: api
     short-name: api
-    bootstrap: make requirements-dev run-migrations
+    bootstrap: invoke requirements-dev run-migrations
     run-order: 1
     healthcheck:
       port: 5000
       endpoint: /_status
     commands:
-      run: make run-app
-      rebuild: make run-all
+      run: invoke run-app
+      rebuild: invoke run-all
 
   digitalmarketplace-search-api:
     name: search-api
     short-name: search
-    bootstrap: make requirements-dev
+    bootstrap: invoke requirements-dev
     run-order: 1
     healthcheck:
       port: 5009
       endpoint: /_status
     commands:
-      run: make run-app
-      rebuild: make run-all
+      run: invoke run-app
+      rebuild: invoke run-all
 
   digitalmarketplace-admin-frontend:
     name: admin-frontend
     short-name: admin
-    bootstrap: make requirements-dev frontend-build
+    bootstrap: invoke requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5004
       endpoint: /admin/_status
     commands:
-      run: make run-app
-      rebuild: make run-all
-      frontend: make frontend-build
+      run: invoke run-app
+      rebuild: invoke run-all
+      frontend: invoke frontend-build
 
   digitalmarketplace-brief-responses-frontend:
     name: brief-responses-frontend
     short-name: brf-resp
-    bootstrap: make requirements-dev frontend-build
+    bootstrap: invoke requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5006
       endpoint: /suppliers/opportunities/_status
     commands:
-      run: make run-app
-      rebuild: make run-all
-      frontend: make frontend-build
+      run: invoke run-app
+      rebuild: invoke run-all
+      frontend: invoke frontend-build
 
   digitalmarketplace-briefs-frontend:
     name: briefs-frontend
     short-name: briefs
-    bootstrap: make requirements-dev frontend-build
+    bootstrap: invoke requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5005
       endpoint: /buyers/_status
     commands:
-      run: make run-app
-      rebuild: make run-all
-      frontend: make frontend-build
+      run: invoke run-app
+      rebuild: invoke run-all
+      frontend: invoke frontend-build
 
   digitalmarketplace-buyer-frontend:
     name: buyer-frontend
     short-name: buyer
-    bootstrap: make requirements-dev frontend-build
+    bootstrap: invoke requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5002
       endpoint: /_status
     commands:
-      run: make run-app
-      rebuild: make run-all
-      frontend: make frontend-build
+      run: invoke run-app
+      rebuild: invoke run-all
+      frontend: invoke frontend-build
 
   digitalmarketplace-supplier-frontend:
     name: supplier-frontend
     short-name: supplier
-    bootstrap: make requirements-dev frontend-build
+    bootstrap: invoke requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5003
       endpoint: /suppliers/_status
     commands:
-      run: make run-app
-      rebuild: make run-all
-      frontend: make frontend-build
+      run: invoke run-app
+      rebuild: invoke run-all
+      frontend: invoke frontend-build
 
   digitalmarketplace-user-frontend:
     name: user-frontend
     short-name: user
-    bootstrap: make requirements-dev frontend-build
+    bootstrap: invoke requirements-dev frontend-build
     run-order: 2
     healthcheck:
       port: 5007
       endpoint: /user/_status
     commands:
-      run: make run-app
-      rebuild: make run-all
-      frontend: make frontend-build
+      run: invoke run-app
+      rebuild: invoke run-all
+      frontend: invoke frontend-build
 
   # Additional repositories to download and bootstrap during setup, but aren't "run" like the rest of the apps.
   digitalmarketplace-scripts:
     name: scripts
-    bootstrap: make requirements-dev
+    bootstrap: invoke requirements-dev
 
   digitalmarketplace-functional-tests:
     name: functional-tests
