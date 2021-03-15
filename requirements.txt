@@ -13,7 +13,7 @@ pexpect==4.8.0
 prettytable==2.0.0  # pyup: ignore
 psutil==5.8.0
 psycopg2-binary==2.8.6
-pyflakes==2.2.0
+pyflakes==2.3.0
 PyYAML==5.4.1
 requests==2.25.1
 ruamel.yaml==0.16.12
