@@ -249,11 +249,11 @@ def _setup_check_background_services(logger):
 
     logger(bold("Checking for existing background services..."))
     healthcheck_passed, healthcheck_results = DMServices.services_healthcheck(threading.Event(), check_once=True)
-    first_result = next(iter(healthcheck_results.values()))  # Used to ensure all results are identical
+    first_result = next(iter(healthcheck_results.values()))  # Used to check if all results are identical
 
-    if not healthcheck_passed and not all(map(lambda x: x is first_result, healthcheck_results.values())):
-        services_up = [x[0].title() for x in list(filter(lambda y: y[1] is True, healthcheck_results.items()))]
-        services_down = [x.title() for x in set(healthcheck_results.keys()) - set([x.lower() for x in services_up])]
+    if not healthcheck_passed and not all(result is first_result for result in healthcheck_results.values()):
+        services_up = [service.title() for service, result in healthcheck_results.items() if result is True]
+        services_down = [service.title() for service, result in healthcheck_results.items() if result is False]
         logger(
             red(
                 "* You have some services running locally (Up: {}. Down: {}).".format(
