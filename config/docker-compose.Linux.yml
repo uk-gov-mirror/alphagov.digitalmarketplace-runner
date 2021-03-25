@@ -4,9 +4,6 @@ services:
   elasticsearch:
     network_mode: host
 
-  nginx:
-    network_mode: host
-
   postgres:
     network_mode: host
 
