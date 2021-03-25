@@ -1,14 +1,1 @@
 version: '3.5'
-
-services:
-  elasticsearch:
-    network_mode: host
-
-  postgres:
-    network_mode: host
-
-  s3:
-    network_mode: host
-    
-  redis:
-    network_mode: host
