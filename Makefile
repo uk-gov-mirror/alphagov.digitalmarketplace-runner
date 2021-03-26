@@ -91,7 +91,7 @@ nix-rebuild: virtualenv
 
 .PHONY: black
 black: install
-	$(MAIN_PY) dmrunner/ main.py setup.py
+	black config/ dmrunner/ main.py setup.py
 
 .PHONY: test-black
 test-black: install

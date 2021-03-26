@@ -104,7 +104,7 @@ class DMServices(DMExecutable):
                     # DM Runner is incapable of managing nginx on some systems (such as rootless docker). To support
                     # these systems where DM runner may only be managing elasticsearch and postgres, we record a
                     # healthcheck failure, but not success.
-                    if 'nginx' in healthcheck_result:
+                    if "nginx" in healthcheck_result:
                         del healthcheck_result["nginx"]
 
                 except ConnectionError:
