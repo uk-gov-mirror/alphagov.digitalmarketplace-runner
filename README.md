@@ -8,7 +8,7 @@ DMRunner also provides an interactive shell to manage processes and their logs.
 
 ## Requirements
 
-DMRunner is compatible with macOS and Ubuntu 16.04.
+DMRunner is compatible with macOS and Ubuntu 20.04.
 
 Running against other OSs may require some care and consideration.
 
