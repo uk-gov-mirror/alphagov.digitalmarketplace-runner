@@ -111,6 +111,17 @@ class DMServices(DMExecutable):
             return False
 
     @staticmethod
+    def is_postgres_up():
+        """Connect to Postgres with default parameters - assume a successful connection means postgres is up."""
+        try:
+            psycopg2.connect(
+                dbname="digitalmarketplace", user=os.getenv("USER", "postgres"), host="localhost"
+            ).close()
+            return True
+        except psycopg2.OperationalError:
+            return False
+
+    @staticmethod
     def services_healthcheck(shutdown_event, check_once=False):
         """Attempts to validate that required background services (NGINX, Elasticsearch, Postgres) are all
         operational. It takes some shortcuts in doing so, but should be effective in most cases."""
@@ -128,16 +139,7 @@ class DMServices(DMExecutable):
                     healthcheck_result["nginx"] = False
 
                 healthcheck_result["elasticsearch"] = DMServices.is_elasticsearch_up()
-
-                # Connect to Postgres with default parameters - assume a successful connection means postgres is up.
-                try:
-                    psycopg2.connect(
-                        dbname="digitalmarketplace", user=os.getenv("USER", "postgres"), host="localhost"
-                    ).close()
-                    healthcheck_result["postgres"] = True
-
-                except psycopg2.OperationalError:
-                    healthcheck_result["postgres"] = False
+                healthcheck_result["postgres"] = DMServices.is_postgres_up()
 
                 if all(healthcheck_result.values()):
                     break
