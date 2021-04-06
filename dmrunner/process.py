@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-
 import ansicolor
 from contextlib import contextmanager
+from json import JSONDecodeError
 import os
 import psycopg2
 import re
@@ -131,10 +131,26 @@ class DMServices(DMExecutable):
             return False
 
     @staticmethod
+    def is_localstack_up():
+        """We use localstack to run a stub S3 service locally."""
+        try:
+            response = requests.get("http://localhost:4566/health")
+            response.raise_for_status()
+            return response.json()["services"]["s3"] == "running"
+        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError, KeyError, JSONDecodeError):
+            return False
+
+    @staticmethod
     def services_healthcheck(shutdown_event, check_once=False):
         """Attempts to validate that required background services (NGINX, Elasticsearch, Postgres) are all
         operational. It takes some shortcuts in doing so, but should be effective in most cases."""
-        healthcheck_result = {"nginx": False, "elasticsearch": False, "postgres": False}
+        healthcheck_result = {
+            "nginx": False, 
+            "elasticsearch": False, 
+            "postgres": False,
+            "redis": False,
+            "localstack": False,
+        }
 
         try:
             while not all(healthcheck_result.values()) and (not shutdown_event.is_set() or check_once):
@@ -150,6 +166,7 @@ class DMServices(DMExecutable):
                 healthcheck_result["elasticsearch"] = DMServices.is_elasticsearch_up()
                 healthcheck_result["postgres"] = DMServices.is_postgres_up()
                 healthcheck_result["redis"] = DMServices.is_redis_up()
+                healthcheck_result["localstack"] = DMServices.is_localstack_up()
 
                 if all(healthcheck_result.values()):
                     break
