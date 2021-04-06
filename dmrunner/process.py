@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import os
 import psycopg2
 import re
+import redis
 import requests
 import pathlib
 import pexpect
@@ -122,6 +123,14 @@ class DMServices(DMExecutable):
             return False
 
     @staticmethod
+    def is_redis_up():
+        try:
+            redis.Redis(host='localhost', port=6379, db=0).get('test')
+            return True
+        except redis.exceptions.RedisError:
+            return False
+
+    @staticmethod
     def services_healthcheck(shutdown_event, check_once=False):
         """Attempts to validate that required background services (NGINX, Elasticsearch, Postgres) are all
         operational. It takes some shortcuts in doing so, but should be effective in most cases."""
@@ -140,6 +149,7 @@ class DMServices(DMExecutable):
 
                 healthcheck_result["elasticsearch"] = DMServices.is_elasticsearch_up()
                 healthcheck_result["postgres"] = DMServices.is_postgres_up()
+                healthcheck_result["redis"] = DMServices.is_redis_up()
 
                 if all(healthcheck_result.values()):
                     break
