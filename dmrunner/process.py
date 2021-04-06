@@ -90,6 +90,18 @@ class DMServices(DMExecutable):
         return subprocess.call(cls._get_docker_compose_command(docker_compose_filepaths, "build"))
 
     @staticmethod
+    def is_nginx_up():
+        """Try to connect to port 80 - assume that a successful connection means nginx is listening on port 80."""
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect(("localhost", 80))
+            return True
+        except ConnectionError:
+            return False
+        finally:
+            s.close()
+
+    @staticmethod
     def is_elasticsearch_up():
         """Check ES cluster health - assume that a 200 response means ES is fine."""
         try:
@@ -106,21 +118,14 @@ class DMServices(DMExecutable):
 
         try:
             while not all(healthcheck_result.values()) and (not shutdown_event.is_set() or check_once):
-                # Try to connect to port 80 - assume that a successful connection means nginx is listening on port 80.
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                try:
-                    s.connect(("localhost", 80))
-                    # DM Runner is incapable of managing nginx on some systems (such as rootless docker). To support
-                    # these systems where DM runner may only be managing elasticsearch and postgres, we record a
-                    # healthcheck failure, but not success.
+                # DM Runner is incapable of managing nginx on some systems (such as rootless docker). To support
+                # these systems where DM runner may only be managing elasticsearch and postgres, we record a
+                # healthcheck failure, but not success.
+                if DMServices.is_nginx_up():
                     if "nginx" in healthcheck_result:
                         del healthcheck_result["nginx"]
-
-                except ConnectionError:
+                else:
                     healthcheck_result["nginx"] = False
-
-                finally:
-                    s.close()
 
                 healthcheck_result["elasticsearch"] = DMServices.is_elasticsearch_up()
 
