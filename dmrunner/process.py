@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-
 import ansicolor
 from contextlib import contextmanager
+from json import JSONDecodeError
 import os
 import psycopg2
 import re
+import redis
 import requests
 import pathlib
 import pexpect
@@ -90,46 +91,80 @@ class DMServices(DMExecutable):
         return subprocess.call(cls._get_docker_compose_command(docker_compose_filepaths, "build"))
 
     @staticmethod
+    def is_nginx_up():
+        """Try to connect to port 80 - assume that a successful connection means nginx is listening on port 80."""
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect(("localhost", 80))
+            return True
+        except ConnectionError:
+            return False
+        finally:
+            s.close()
+
+    @staticmethod
+    def is_elasticsearch_up():
+        """Check ES cluster health - assume that a 200 response means ES is fine."""
+        try:
+            cluster_endpoint = requests.get("http://localhost:9200/_cluster/health")
+            return cluster_endpoint.status_code == 200
+        except (requests.exceptions.ConnectionError, AttributeError):
+            return False
+
+    @staticmethod
+    def is_postgres_up():
+        """Connect to Postgres with default parameters - assume a successful connection means postgres is up."""
+        try:
+            psycopg2.connect(dbname="digitalmarketplace", user=os.getenv("USER", "postgres"), host="localhost").close()
+            return True
+        except psycopg2.OperationalError:
+            return False
+
+    @staticmethod
+    def is_redis_up():
+        try:
+            redis.Redis(host="localhost", port=6379, db=0).get("test")
+            return True
+        except redis.exceptions.RedisError:
+            return False
+
+    @staticmethod
+    def is_localstack_up():
+        """We use localstack to run a stub S3 service locally."""
+        try:
+            response = requests.get("http://localhost:4566/health")
+            response.raise_for_status()
+            return response.json()["services"]["s3"] == "running"
+        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError, KeyError, JSONDecodeError):
+            return False
+
+    @staticmethod
     def services_healthcheck(shutdown_event, check_once=False):
         """Attempts to validate that required background services (NGINX, Elasticsearch, Postgres) are all
         operational. It takes some shortcuts in doing so, but should be effective in most cases."""
-        healthcheck_result = {"nginx": False, "elasticsearch": False, "postgres": False}
+        healthcheck_result = {
+            "nginx": False,
+            "elasticsearch": False,
+            "postgres": False,
+            "redis": False,
+            "localstack": False,
+        }
 
         try:
             while not all(healthcheck_result.values()) and (not shutdown_event.is_set() or check_once):
-                # Try to connect to port 80 - assume that a successful connection means nginx is listening on port 80.
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                try:
-                    s.connect(("localhost", 80))
-                    # DM Runner is incapable of managing nginx on some systems (such as rootless docker). To support
-                    # these systems where DM runner may only be managing elasticsearch and postgres, we record a
-                    # healthcheck failure, but not success.
+                # DM Runner is incapable of managing nginx on some systems (such as rootless docker). To support
+                # these systems where DM runner may only be managing elasticsearch and postgres, we record a
+                # healthcheck failure, but not success.
+                if DMServices.is_nginx_up():
                     if "nginx" in healthcheck_result:
                         del healthcheck_result["nginx"]
-
-                except ConnectionError:
+                else:
                     healthcheck_result["nginx"] = False
 
-                finally:
-                    s.close()
-
-                try:
-                    # Check ES cluster health - assume that a 200 response means ES is fine.
-                    cluster_endpoint = requests.get("http://localhost:9200/_cluster/health")
-                    healthcheck_result["elasticsearch"] = cluster_endpoint.status_code == 200
-
-                except (requests.exceptions.ConnectionError, AttributeError):
-                    healthcheck_result["elasticsearch"] = False
-
-                # Connect to Postgres with default parameters - assume a successful connection means postgres is up.
-                try:
-                    psycopg2.connect(
-                        dbname="digitalmarketplace", user=os.getenv("USER", "postgres"), host="localhost"
-                    ).close()
-                    healthcheck_result["postgres"] = True
-
-                except psycopg2.OperationalError:
-                    healthcheck_result["postgres"] = False
+                healthcheck_result["elasticsearch"] = DMServices.is_elasticsearch_up()
+                healthcheck_result["postgres"] = DMServices.is_postgres_up()
+                healthcheck_result["redis"] = DMServices.is_redis_up()
+                healthcheck_result["localstack"] = DMServices.is_localstack_up()
 
                 if all(healthcheck_result.values()):
                     break
