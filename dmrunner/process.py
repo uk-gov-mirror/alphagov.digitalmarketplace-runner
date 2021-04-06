@@ -90,6 +90,15 @@ class DMServices(DMExecutable):
         return subprocess.call(cls._get_docker_compose_command(docker_compose_filepaths, "build"))
 
     @staticmethod
+    def is_elasticsearch_up():
+        """Check ES cluster health - assume that a 200 response means ES is fine."""
+        try:
+            cluster_endpoint = requests.get("http://localhost:9200/_cluster/health")
+            return cluster_endpoint.status_code == 200
+        except (requests.exceptions.ConnectionError, AttributeError):
+            return False
+
+    @staticmethod
     def services_healthcheck(shutdown_event, check_once=False):
         """Attempts to validate that required background services (NGINX, Elasticsearch, Postgres) are all
         operational. It takes some shortcuts in doing so, but should be effective in most cases."""
@@ -113,13 +122,7 @@ class DMServices(DMExecutable):
                 finally:
                     s.close()
 
-                try:
-                    # Check ES cluster health - assume that a 200 response means ES is fine.
-                    cluster_endpoint = requests.get("http://localhost:9200/_cluster/health")
-                    healthcheck_result["elasticsearch"] = cluster_endpoint.status_code == 200
-
-                except (requests.exceptions.ConnectionError, AttributeError):
-                    healthcheck_result["elasticsearch"] = False
+                healthcheck_result["elasticsearch"] = DMServices.is_elasticsearch_up()
 
                 # Connect to Postgres with default parameters - assume a successful connection means postgres is up.
                 try:
