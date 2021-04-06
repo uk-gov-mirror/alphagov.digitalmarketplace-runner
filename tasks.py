@@ -1,9 +1,113 @@
 from pathlib import Path
+import os
 
 import yaml
 from colored import fore, style
 from invoke import task
 from invoke.exceptions import UnexpectedExit
+
+from dmdevtools.invoke_tasks import library_tasks
+
+
+os.environ["COMPOSE_FILE"] = f"config/docker-compose.yml:config/docker-compose.{os.uname().sysname}.yml"
+os.environ["COMPOSE_PROJECT_NAME"] = "dmrunner"
+
+
+@task
+def brew(c):
+    """Install system dependencies using Homebrew"""
+    c.run("brew bundle")
+    c.run("pyenv install --skip-existing && pyenv version")
+    c.run(". Brewfile.env ; nvm install")
+
+    pwd_pretty = str(Path().resolve()).replace(os.environ["HOME"], "$(HOME)")
+
+    print(
+        f"""{style.BOLD}
+😸 Prerequisites have been installed! 😸
+😺 The following steps are recommended for a seamless experience 😺
+1️⃣  Add the following lines to your shell profile (usually ~/.bash_profile): 1️⃣
+{style.RESET}
+[ -s "{pwd_pretty}/Brewfile.env" ] && \\
+	. {pwd_pretty}/Brewfile.env
+{style.BOLD}
+2️⃣  Source the file now so you can continue with the next step: 2️⃣
+{style.RESET}
+$ source Brewfile.env
+{style.BOLD}
+3️⃣  Increase the memory limit of Docker for Mac to 4 GiB 3️⃣
+{style.RESET}"""
+    )
+
+
+@task(library_tasks["requirements_dev"])
+def install(c):
+    """Install Python dependencies to venv"""
+    pass
+
+
+@task(install)
+def config(c):
+    """Configure preferences"""
+    c.run("python main.py config", pty=True)
+
+
+@task(install)
+def setup(c):
+    """Setup apps"""
+    c.run("python main.py setup", pty=True)
+
+
+@task(install)
+def data(c):
+    """Rebuild database"""
+    c.run("python main.py data", pty=True)
+
+
+@task(library_tasks["virtualenv"])
+def run(c):
+    """Run the Digital Marketplace"""
+    c.run("python main.py run", pty=True)
+
+
+@task(library_tasks["virtualenv"])
+def rebuild(c):
+    c.run("python main.py --rebuild run", pty=True)
+
+
+@task
+def docker_compose_env(c):
+    print(f"export COMPOSE_FILE='{os.environ['COMPOSE_FILE']}'")
+    print(f"export COMPOSE_PROJECT_NAME='{os.environ['COMPOSE_PROJECT_NAME']}'")
+
+
+@task(install)
+def black(c):
+    """Format code using black"""
+    c.run("black config/ dmrunner/ main.py setup.py tasks.py")
+
+
+@task(install)
+def test_black(c):
+    """Check formatting of code"""
+    c.run("black --check config/ dmrunner/ main.py setup.py tasks.py")
+
+
+@task(install)
+def test_pyflakes(c):
+    """Check for code errors"""
+    c.run("pyflakes config/ dmrunner/ main.py setup.py tasks.py")
+
+
+@task(install)
+def test_mypy(c):
+    """Check for static type errors"""
+    c.run("mypy dmrunner/ main.py setup.py")
+
+
+@task(test_black, test_mypy, test_pyflakes)
+def test(c):
+    pass
 
 
 def git_get_default_branch_from_remote(c, repo: Path, remote="origin"):
@@ -17,12 +121,9 @@ def git_get_default_branch_from_remote(c, repo: Path, remote="origin"):
     # expecting message to be like 'origin/HEAD set to main'
     prefix = f"{remote}/HEAD set to "
     if stdout.startswith(prefix):
-        branch_name = stdout[len(prefix):]
+        branch_name = stdout[len(prefix) :]
     else:
-        raise UnexpectedExit(
-            result,
-            f"unable to parse output from `git remote set-head -a {remote}`"
-        )
+        raise UnexpectedExit(result, f"unable to parse output from `git remote set-head -a {remote}`")
 
     return branch_name
 
@@ -45,7 +146,7 @@ def git_get_default_branch(c, repo: Path, remote="origin"):
         return git_get_default_branch_from_remote(c, repo, remote)
 
     # parse ref
-    default_branch = remote_head_ref[len("ref: "):].split("/")[-1]
+    default_branch = remote_head_ref[len("ref: ") :].split("/")[-1]
 
     # check that branch exists locally
     if not (repo / ".git" / "refs" / "heads" / default_branch):
@@ -84,7 +185,6 @@ def git_checkout_and_pull(c, repo: Path, branch=None, remote="origin"):
     return {
         "remote": remote,
         "branch": branch,
-
         "fetch": fetch,
         "checkout": checkout,
         "merge": merge,
