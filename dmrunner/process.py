@@ -115,9 +115,7 @@ class DMServices(DMExecutable):
     def is_postgres_up():
         """Connect to Postgres with default parameters - assume a successful connection means postgres is up."""
         try:
-            psycopg2.connect(
-                dbname="digitalmarketplace", user=os.getenv("USER", "postgres"), host="localhost"
-            ).close()
+            psycopg2.connect(dbname="digitalmarketplace", user=os.getenv("USER", "postgres"), host="localhost").close()
             return True
         except psycopg2.OperationalError:
             return False
@@ -125,7 +123,7 @@ class DMServices(DMExecutable):
     @staticmethod
     def is_redis_up():
         try:
-            redis.Redis(host='localhost', port=6379, db=0).get('test')
+            redis.Redis(host="localhost", port=6379, db=0).get("test")
             return True
         except redis.exceptions.RedisError:
             return False
@@ -145,8 +143,8 @@ class DMServices(DMExecutable):
         """Attempts to validate that required background services (NGINX, Elasticsearch, Postgres) are all
         operational. It takes some shortcuts in doing so, but should be effective in most cases."""
         healthcheck_result = {
-            "nginx": False, 
-            "elasticsearch": False, 
+            "nginx": False,
+            "elasticsearch": False,
             "postgres": False,
             "redis": False,
             "localstack": False,
