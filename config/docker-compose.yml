@@ -28,7 +28,7 @@ services:
       - "discovery.type=single-node"
 
   s3:
-    image: "localstack/localstack@sha256:cb08eabae40fa1e33babffa4ff8c454c2276405cfc2fe1e2e300e5625244bdf7"
+    image: "localstack/localstack:0.12.9.1@sha256:bf1685501c6b3f75a871b5319857b2cc88158eb80a225afe8abef9a935d5148a"
     ports:
       - "4566:4566"
       - "4571:4571"
