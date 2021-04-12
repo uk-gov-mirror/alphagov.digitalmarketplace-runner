@@ -5,7 +5,7 @@ boto3==1.17.39
 colored==1.4.2
 configobj==5.0.6
 digitalmarketplace-developer-tools==0.1.1
-docker==4.4.4
+docker==5.0.0
 gnureadline==8.0.0
 invoke==1.5.0
 mypy==0.812
