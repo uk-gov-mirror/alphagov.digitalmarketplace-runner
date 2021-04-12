@@ -40,7 +40,7 @@ $ source Brewfile.env
     )
 
 
-@task(library_tasks["requirements_dev"])
+@task(library_tasks["requirements_dev"], aliases=["requirements-dev"])
 def install(c):
     """Install Python dependencies to venv"""
     pass
