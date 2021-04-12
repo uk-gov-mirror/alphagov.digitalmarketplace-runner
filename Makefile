@@ -4,7 +4,7 @@
 %:
 	-@[ -z "$$TERM" ] || tput setaf 1  # red
 	@>&2 echo warning: calling '`make`' is being deprecated in this repo, you should use '`invoke` (https://pyinvoke.org)' instead.
-	-@[ -z "$$TERM" ] || tput setaf 9  # default
+	-@[ -z "$$TERM" ] || tput sgr0  # default
 	@# pass goals to '`invoke`'
 	invoke $(or $(MAKECMDGOALS), $@)
 	@exit
@@ -18,4 +18,4 @@ bootstrap:
 	@echo done
 	-@[ -z "$$TERM" ] || tput setaf 2  # green
 	@>&2 echo dmdevtools has been installed globally, run developer tasks with '`invoke`'
-	-@[ -z "$$TERM" ] || tput setaf 9  # default
+	-@[ -z "$$TERM" ] || tput sgr0  # default
