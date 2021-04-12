@@ -1,4 +1,4 @@
 cask "docker" unless system "/usr/local/bin/docker --version"
-brew "postgresql@9.6"
+brew "postgresql@12"
 brew "pyenv"
 brew "nvm"
