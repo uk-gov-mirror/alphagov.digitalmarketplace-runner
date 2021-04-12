@@ -14,7 +14,7 @@ help:
 
 .PHONY: bootstrap
 bootstrap:
-	pip install digitalmarketplace-developer-tools
+	pip install digitalmarketplace-developer-tools -r tasks-requirements.txt
 	@echo done
 	-@[ -z "$$TERM" ] || tput setaf 2  # green
 	@>&2 echo dmdevtools has been installed globally, run developer tasks with '`invoke`'
