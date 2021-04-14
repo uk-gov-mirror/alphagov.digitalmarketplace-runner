@@ -36,9 +36,9 @@ Running against other OSs may require some care and consideration.
 
 ### Install using Brewfile
 
-macOS/[Homebrew] users can run `make brew` to install all these prerequisites.
+macOS/[Homebrew] users can run `invoke brew` to install all these prerequisites.
 
-`make brew` will also suggest you source the file `Brewfile.env` into your environment:
+`invoke brew` will also suggest you source the file `Brewfile.env` into your environment:
 
 ```
 [ -s "$HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env" ] && source "$HOME/path/to/repo/digitalmarketplace-runner/Brewfile.env"
@@ -57,8 +57,9 @@ correct version of Postgres is available for use with the
 1. Ensure your environment meets the requirements above.
 2. Clone this repository into an empty directory (e.g. `~/gds`, `~/dm`, or whatever), so that you have something like
 `~/gds/dmrunner`.
-3. Run `make setup` - follow instructions.
-4. Run `make` to bring up the Digital Marketplace locally.
+3. Run `make bootstrap`
+4. Run `invoke setup` - follow instructions.
+5. Run `invoke run` to bring up the Digital Marketplace locally.
 
 ## Using a virtual machine
 If you do not use macOS or wish to use a completely isolated environment to use DM Runner you can alternatively use the
@@ -73,12 +74,12 @@ cd ~/digitalmarketplace/digitalmarketplace-runner
 
 Then follow the above instructions from step 3.
 
-## `make` commands
+## `invoke` commands
 ### Options
-* `make setup` - Verifies your local environment is suitable and performs basic setup.
-* `make data` - Performs an abridged setup that removes your existing managed Postgres and Elasticsearch and repopulates them with fresh data.
-* `make`/`make run` - Launches all repos using `make run-app`.
-* `make rebuild` - Launches all repos with an initial `make run-all` to build eg frontend assets.
+* `invoke setup` - Verifies your local environment is suitable and performs basic setup.
+* `invoke data` - Performs an abridged setup that removes your existing managed Postgres and Elasticsearch and repopulates them with fresh data.
+* `invoke run` - Launches all repos using `invoke run-app`.
+* `invoke rebuild` - Launches all repos with an initial `invoke run-all` to build eg frontend assets.
 
 ## Commands
 After the apps have done their initial boot-up cycle, you have a few commands at your disposal which are detailed below.
@@ -94,10 +95,10 @@ Print out current status of the running apps.
 Print which branches you're running for each app.
 
 #### R / Restart
-Restart any failed or down apps using `make run-app`.
+Restart any failed or down apps using `invoke run-app`.
 
 #### RB / Rebuild
-Rebuild and restart any failed or down apps using `make rebuild`, which also does NPM install and frontend-build.
+Rebuild and restart any failed or down apps using `invoke rebuild`, which also does NPM install and frontend-build.
 
 #### F / Filter
 By default, incoming logs from all apps are interleaved together. You can use this to toggle on a filter to show only
@@ -106,7 +107,7 @@ closest-matching app name for each word will be filtered in for logging purposes
 logs for the data api and the buyer-frontend to be shown).
 
 #### FE / Frontend
-Runs `make frontend-build` against frontend apps. With arguments, the closest-matching app name for each word will be
+Runs `invoke frontend-build` against frontend apps. With arguments, the closest-matching app name for each word will be
 rebuilt (eg 'fe buyer supplier' will run a `frontend-build` on the buyer-frontend and the supplier-frontend. With no
 arguments, all frontend apps will be rebuilt. This is a one-off rebuild; for ongoing rebuilds use `FW`.
 
