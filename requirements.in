@@ -7,6 +7,7 @@ configobj
 dataclasses;python_version<"3.7"  # via black
 digitalmarketplace-developer-tools
 docker
+docker-compose
 gnureadline
 invoke
 mypy
