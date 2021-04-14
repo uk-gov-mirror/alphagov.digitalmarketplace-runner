@@ -4,6 +4,7 @@ black
 boto3
 colored
 configobj
+dataclasses;python_version<"3.7"  # via black
 digitalmarketplace-developer-tools
 docker
 gnureadline
