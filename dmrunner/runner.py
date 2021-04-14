@@ -55,10 +55,10 @@ class DMRunner:
  h /     help - Display this help file.
  s /   status - Check status for your apps.
  b /   branch - Check which branches your apps are running against.
- r /  restart - Restart any apps that have gone down (using `make run-app`).
-rb /  rebuild - Rebuild and restart any failed or down apps using `make run-all`.
+ r /  restart - Restart any apps that have gone down (using `invoke run-app`).
+rb /  rebuild - Rebuild and restart any failed or down apps using `invoke run-all`.
  f /   filter - Start showing logs only from specified apps*
-fe / frontend - Run `make frontend-build` against specified apps*
+fe / frontend - Run `invoke frontend-build` against specified apps*
  k /     kill - Kill specified apps*
  q /     quit - Terminate all running services and apps and drop back to your shell.
  e /      env - 'delete', 'set', 'list' environment variables for apps.

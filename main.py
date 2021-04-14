@@ -24,7 +24,7 @@ def main():
         "--rebuild",
         "-r",
         action="store_true",
-        help="Do a rebuild for all apps (equivalent to using `make run-all`). This will take "
+        help="Do a rebuild for all apps (equivalent to using `invoke run-all`). This will take "
         "longer on initial startup but will help to ensure everything is in the best state.",
     )
     parser.add_argument(

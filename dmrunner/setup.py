@@ -552,7 +552,7 @@ def setup_and_check_requirements(logger: Callable, config: dict, config_path: st
     if exitcode:
         if only_check_services:
             if exitcode == EXITCODE_CONFIG_NO_EXIST:
-                logger(red("Configuration file not found. Run `make setup` to generate."))
+                logger(red("Configuration file not found. Run `invoke setup` to generate."))
 
             else:
                 logger(red("Startup failed with exitcode: {}".format(exitcode)))
