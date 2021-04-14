@@ -3,7 +3,7 @@
 
 from distutils.core import setup
 
-with open("requirements.txt") as reqfile:
+with open("requirements.in") as reqfile:
     requirements = reqfile.read().split()
 
 setup(

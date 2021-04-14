@@ -1,0 +1,22 @@
+ansicolor
+ansiwrap
+black
+boto3
+colored
+configobj
+dataclasses;python_version<"3.7"  # via black
+digitalmarketplace-developer-tools
+docker
+gnureadline
+invoke
+mypy
+pexpect
+pip-tools
+prettytable
+psutil
+psycopg2-binary
+pyflakes
+PyYAML
+redis
+requests
+ruamel.yaml
