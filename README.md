@@ -12,11 +12,11 @@ DMRunner is compatible with macOS and Ubuntu 20.04.
 
 Running against other OSs may require some care and consideration.
 
-* Python 3, including headers if appropriate (consider using [pyenv]),
+* The Python version specified in [.python-version](.python-version), including headers if appropriate (consider using [pyenv]),
   installed with `pip` and `virtualenv` packages.
   * macOS/Homebrew users can install with `brew install pyenv && pyenv shell 3.6.8`
   * Add a line to your `.bash_profile` to source the `Brewfile.env` (see below)
-* Node ^v10.15.0 (consider using [Node Version Manager]) and NPM 6+ installed
+* The Node version specified in [.nvmrc](.nvmrc) (consider using [Node Version Manager]) and NPM 6+ installed
   and available in your path.
   * If you have NVM the command `nvm install && nvm use` will install and
     select the correct version of node for you

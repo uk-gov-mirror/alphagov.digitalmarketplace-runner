@@ -48,7 +48,7 @@ from dmrunner.process import DMServices, DMProcess, background_services, blank_c
 
 MINIMUM_DOCKER_VERSION = LooseVersion("18.00")
 # TODO: These should be pulled from the docker base image really.
-SPECIFIC_NODE_VERSION = LooseVersion(Path(".nvmrc").read_text().strip())
+SPECIFIC_NODE_VERSION = Path(".nvmrc").read_text().strip()
 
 
 def _setup_config_modifications(logger, config, config_path):
@@ -178,14 +178,19 @@ def _setup_check_node_version(logger):
 
     try:
         node_version = LooseVersion(subprocess.check_output(["node", "-v"], universal_newlines=True).strip())
-
-    except Exception:
+        node_major_version = node_version.version[1]
+        node_release_schedule = requests.get(
+            "https://raw.githubusercontent.com/nodejs/Release/main/schedule.json"
+        ).json()
+        codename = node_release_schedule.get(f"v{node_major_version}").get("codename")
+    except Exception as e:
         logger(red("* Unable to verify Node version. Please check that you have Node installed and in your path."))
+        logger(red(e))
         exitcode = EXITCODE_NODE_NOT_IN_PATH
 
     else:
         try:
-            assert node_version == SPECIFIC_NODE_VERSION
+            assert codename.lower() == SPECIFIC_NODE_VERSION.replace("lts/", "")
             logger(green("* You are using a suitable version of Node ({}).".format(node_version)))
 
         except AssertionError:
