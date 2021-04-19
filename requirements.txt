@@ -96,7 +96,7 @@ pep517==0.10.0
     # via pip-tools
 pexpect==4.8.0
     # via -r requirements.in
-pip-tools==6.0.1
+pip-tools==6.1.0
     # via -r requirements.in
 prettytable==2.1.0
     # via -r requirements.in
