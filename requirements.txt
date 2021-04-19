@@ -53,7 +53,7 @@ digitalmarketplace-developer-tools==1.0.1
     # via -r requirements.in
 distro==1.5.0
     # via docker-compose
-docker-compose==1.29.0
+docker-compose==1.29.1
     # via -r requirements.in
 docker[ssh]==5.0.0
     # via
